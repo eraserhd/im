@@ -15,6 +15,9 @@ SDL_Surface* screen;
 
 #define ELEVATOR_COUNT 5
 GLuint elevator_backgrounds[ELEVATOR_COUNT];
+GLuint elevator_shaft;
+GLuint elevator;
+int elevator_y[ELEVATOR_COUNT];
 
 void die(string const& msg) {
     cerr<<msg<<endl;
@@ -25,9 +28,6 @@ GLuint load_bmp_as_texture(string const& name) {
     SDL_Surface *s = SDL_LoadBMP(("data/" + name).c_str());
     if (NULL == s)
         die("Could not load " + name);
-
-    assert(__builtin_popcount(s->w) == 1);
-    assert(__builtin_popcount(s->h) == 1);
 
     GLuint result;
     glGenTextures(1, &result);
@@ -51,6 +51,8 @@ GLuint load_elevator_background(int n) {
 void redraw() {
     glClear(GL_COLOR_BUFFER_BIT);
 
+    const int height = 480*11;
+
     // elevator backgrounds
     for (int i = 0; i < ELEVATOR_COUNT; ++i) {
         int left = 320 + i*2*640, tleft = 0;
@@ -70,6 +72,33 @@ void redraw() {
             glTexCoord2f(float(tleft)/512.0, float(height)/512.0); glVertex3f(left, height, 0);
         glEnd();
     }
+
+    // elevator shafts
+    glBindTexture(GL_TEXTURE_2D, elevator_shaft);
+    for (int i = 0; i < ELEVATOR_COUNT; ++i) {
+        int center = 320+640 + i*2*640;
+
+        glBegin(GL_QUADS);
+            glTexCoord2f(0,0); glVertex3f(center-40, 0, 0);
+            glTexCoord2f(1,0); glVertex3f(center+40, 0, 0);
+            glTexCoord2f(1,float(height)/20.0); glVertex3f(center+40, height, 0);
+            glTexCoord2f(0,float(height)/20.0); glVertex3f(center-40, height, 0);
+        glEnd();
+    }
+
+    // elevators
+    glBindTexture(GL_TEXTURE_2D, elevator);
+    for (int i = 0; i < ELEVATOR_COUNT; ++i) {
+        int center = 320+640 + i*2*640;
+
+        glBegin(GL_QUADS);
+            glTexCoord2f(0,0); glVertex3f(center-40, elevator_y[i]-180, 0);
+            glTexCoord2f(1,0); glVertex3f(center+40, elevator_y[i]-180, 0);
+            glTexCoord2f(1,1); glVertex3f(center+40, elevator_y[i], 0);
+            glTexCoord2f(0,1); glVertex3f(center-40, elevator_y[i], 0);
+        glEnd();
+    }
+
 
     SDL_GL_SwapBuffers();
 }
@@ -106,8 +135,13 @@ Uint32 timer(Uint32 interval, void* p) {
 }
 
 void init() {
-    for (int i = 0; i < ELEVATOR_COUNT; ++i)
+    for (int i = 0; i < ELEVATOR_COUNT; ++i) {
         elevator_backgrounds[i] = load_elevator_background(i);
+        elevator_y[i] = rand()%480*10+100;
+    }
+
+    elevator_shaft = load_bmp_as_texture("elevator-2.bmp");
+    elevator = load_bmp_as_texture("elevator-0.bmp");
 }
 
 int main(int argc, char* argv[]) {
@@ -125,7 +159,7 @@ int main(int argc, char* argv[]) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
      
-    glOrtho(0.0f, 640*11, 480*11, 0.0f, -1.0f, 1.0f);
+    glOrtho(0.0f, 640*4, 480*4, 0.0f, -1.0f, 1.0f);
             
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
