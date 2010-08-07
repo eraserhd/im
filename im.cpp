@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <algorithm>
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -17,7 +18,9 @@ SDL_Surface* screen;
 GLuint elevator_backgrounds[ELEVATOR_COUNT];
 GLuint elevator_shaft;
 GLuint elevator;
+
 int elevator_y[ELEVATOR_COUNT];
+int elevator_d[ELEVATOR_COUNT];
 
 void die(string const& msg) {
     cerr<<msg<<endl;
@@ -118,6 +121,23 @@ void event_loop() {
             return;
 
         case SDL_USEREVENT:
+            for (int i = 0; i < ELEVATOR_COUNT; ++i) {
+                elevator_y[i] += elevator_d[i];
+                if (elevator_d[i]>0 && elevator_y[i] > 480*11 - 20)
+                    elevator_d[i] = -elevator_d[i];
+                else if (elevator_d[i]<0 && elevator_y[i] < 200)
+                    elevator_d[i] = -elevator_d[i];
+            }
+
+            {
+                glMatrixMode(GL_PROJECTION);
+                glLoadIdentity();
+                
+                int top = max(0,elevator_y[0] - 180/2 - 480/2);
+
+                glOrtho(0.0f + 640, 640 + 640, 480 + top, 0.0f + top, -1.0f, 1.0f);
+            }
+
             redraw();
             break;
         }
@@ -138,6 +158,7 @@ void init() {
     for (int i = 0; i < ELEVATOR_COUNT; ++i) {
         elevator_backgrounds[i] = load_elevator_background(i);
         elevator_y[i] = rand()%480*10+100;
+        elevator_d[i] = 10;
     }
 
     elevator_shaft = load_bmp_as_texture("elevator-2.bmp");
@@ -159,14 +180,14 @@ int main(int argc, char* argv[]) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
      
-    glOrtho(0.0f, 640*4, 480*4, 0.0f, -1.0f, 1.0f);
+    glOrtho(0.0f, 640*11, 480*11, 0.0f, -1.0f, 1.0f);
             
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
     init();
 
-    SDL_AddTimer(100, timer, NULL);
+    SDL_AddTimer(30, timer, NULL);
     event_loop();
 
     return 0;
