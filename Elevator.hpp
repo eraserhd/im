@@ -5,7 +5,7 @@
 
 namespace im {
 
-class elevator {
+class Elevator {
 public:
     int bottom;
     int y_velocity;

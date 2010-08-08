@@ -8,7 +8,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "board.hpp"
+#include "Board.hpp"
 #include <boost/foreach.hpp>
 using namespace std;
 using namespace im;
@@ -21,7 +21,7 @@ GLuint elevator_shaft;
 GLuint elevator_texture;
 GLuint left_hallway, right_hallway;
 
-board g_board(board::generate());
+Board g_board(Board::generate());
 
 void die(string const& msg) {
     cerr<<msg<<endl;
@@ -52,7 +52,7 @@ GLuint load_elevator_background(int n) {
     return load_bmp_as_texture(out.str());
 }
 
-void render(board const& b) {
+void render(Board const& b) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     const int height = 480*11;
@@ -93,7 +93,7 @@ void render(board const& b) {
     // exits
     for (int j = 0; j < b.rooms.size(); ++j) {
         for (int i = 0; i < b.rooms[j].size(); ++i) {
-            room const& r = b.rooms[j][i];
+            Room const& r = b.rooms[j][i];
 
             glBindTexture(GL_TEXTURE_2D, right_hallway);
             BOOST_FOREACH(int o, r.left_exits) {
@@ -101,7 +101,7 @@ void render(board const& b) {
                 int left = ecenter+40;
                 int right = left+326;
                 int top = o + 480*i;
-                int bottom = top + board::CORRIDOR_HEIGHT;
+                int bottom = top + Board::CORRIDOR_HEIGHT;
 
                 glBegin(GL_QUADS);
                     glTexCoord2f(0,0); glVertex3f(left, top, 0);
@@ -118,7 +118,7 @@ void render(board const& b) {
                 int left = right-324;
 
                 int top = o + 480*i;
-                int bottom = top + board::CORRIDOR_HEIGHT;
+                int bottom = top + Board::CORRIDOR_HEIGHT;
 
                 glBegin(GL_QUADS);
                     glTexCoord2f(0,0); glVertex3f(left, top, 0);

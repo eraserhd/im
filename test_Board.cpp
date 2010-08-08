@@ -6,23 +6,23 @@
 #include <set>
 #include <utility>
 
-#include "board.hpp"
+#include "Board.hpp"
 using namespace std;
 using namespace im;
 
 BOOST_AUTO_TEST_CASE(board_contains_five_elevators) {
-    board b = board::generate();
+    Board b = Board::generate();
     BOOST_CHECK_EQUAL(5, b.elevators.size());
 }
 
 BOOST_AUTO_TEST_CASE(board_contains_six_columns_of_rooms) {
-    board b = board::generate();
+    Board b = Board::generate();
     BOOST_CHECK_EQUAL(6, b.rooms.size());
 }
 
 BOOST_AUTO_TEST_CASE(generated_room_positions_have_no_off_board_exits) {
     for (int i = 0; i < 100; ++i) {
-        board b = board::generate();
+        Board b = Board::generate();
         for (int j = 0; j < b.rooms.front().size(); ++j) {
             BOOST_CHECK_EQUAL(0, b.rooms.front()[j].left_exits.size());
         }
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(generated_room_positions_have_no_off_board_exits) {
 
 BOOST_AUTO_TEST_CASE(all_columns_have_rooms) {
     for (int i = 0; i < 100; ++i) {
-        board b = board::generate();
+        Board b = Board::generate();
         for (int j = 0; j < b.rooms.size(); ++j) {
             BOOST_CHECK(b.rooms[j].size() > 0);
         }
@@ -46,9 +46,9 @@ struct ConnectedChecker {
     queue<int> q;
     set<int> shafts_seen;
     set<pair<int,int> > rooms_seen;
-    board const& b;
+    Board const& b;
 
-    ConnectedChecker(board const& b) : b(b) {}
+    ConnectedChecker(Board const& b) : b(b) {}
 
     void visit_room(int j, int i) {
         BOOST_REQUIRE(j>=0);
@@ -83,14 +83,14 @@ struct ConnectedChecker {
 
                 // Rooms left of shaft
                 for (int i = 0; i < b.rooms[shaft].size(); ++i) {
-                    room const& r = b.rooms[shaft][i];
+                    Room const& r = b.rooms[shaft][i];
                     if (!r.right_exits.empty())
                         visit_room(shaft,i);
                 }
 
                 // Rooms right of shaft
                 for (int i = 0; i < b.rooms[shaft+1].size(); ++i) {
-                    room const& r = b.rooms[shaft+1][i];
+                    Room const& r = b.rooms[shaft+1][i];
                     if (!r.left_exits.empty())
                         visit_room(shaft+1,i);
                 }
@@ -101,7 +101,7 @@ struct ConnectedChecker {
                 BOOST_REQUIRE(j < b.rooms.size());
                 BOOST_REQUIRE(i < b.rooms[j].size());
 
-                room const& r = b.rooms[j][i];
+                Room const& r = b.rooms[j][i];
                 if (!r.left_exits.empty()) {
                     visit_shaft(j-1);
                 }
@@ -126,7 +126,7 @@ struct ConnectedChecker {
 };
 BOOST_AUTO_TEST_CASE(all_rooms_and_shafts_are_connected) {
     for (int i = 0; i < 100; ++i) {
-        board b = board::generate();
+        Board b = Board::generate();
         ConnectedChecker checker(b);
         checker();
     }

@@ -2,23 +2,23 @@
 #include <cassert>
 #include <iostream>
 #include <vector>
-#include "board.hpp"
+#include "Board.hpp"
 using namespace std;
 #define ALL(c) (c).begin(),(c).end()
 
 namespace im {
 
-vector<room> load_rooms() {
-    vector<room> result;
+vector<Room> load_rooms() {
+    vector<Room> result;
 
-    const int BOTTOM = room::HEIGHT - board::CORRIDOR_HEIGHT;
+    const int BOTTOM = Room::HEIGHT - Board::CORRIDOR_HEIGHT;
     int i = 1;
     while (result.size() < 36) {
         if ((i&15) == 0) {
             ++i;
             continue;
         }
-        room r;
+        Room r;
         if (i&1)
             r.left_exits.push_back(0);
         if (i&2)
@@ -34,15 +34,15 @@ vector<room> load_rooms() {
     return result;
 }
 
-board board::generate() {
-    vector<elevator> elevators;
+Board Board::generate() {
+    vector<Elevator> elevators;
     const int COLUMNS = 6;
-    vector<vector<room> > rooms(COLUMNS);
+    vector<vector<Room> > rooms(COLUMNS);
 
     for (int i = 0; i < 5; ++i)
-        elevators.push_back(elevator());
+        elevators.push_back(Elevator());
 
-    vector<room> available_rooms = load_rooms();
+    vector<Room> available_rooms = load_rooms();
     random_shuffle(ALL(available_rooms));
     vector<char> used(available_rooms.size(),false);
 
@@ -84,10 +84,10 @@ board board::generate() {
         }
     }
 
-    return board(elevators, rooms);
+    return Board(elevators, rooms);
 }
 
-board::board(vector<elevator> const& elevators, vector<vector<room> > const& rooms)
+Board::Board(vector<Elevator> const& elevators, vector<vector<Room> > const& rooms)
     : elevators(elevators)
     , rooms(rooms)
 {

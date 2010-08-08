@@ -2,12 +2,12 @@
 CXXFLAGS = $(shell sdl-config --cflags) -g
 LDFLAGS = $(shell sdl-config --libs) -g -lGL -lGLU
 
-testable_SOURCES = 	board.cpp
+testable_SOURCES = 	Board.cpp
 
 im_SOURCES = 		$(testable_SOURCES) \
 			im.cpp
 
-test_PROGRAMS =		test_board
+test_PROGRAMS =		test_Board
 
 testable_OBJECTS =	$(addsuffix .o,$(basename $(testable_SOURCES)))
 im_OBJECTS =		$(addsuffix .o,$(basename $(testable_OBJECTS)))

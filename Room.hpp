@@ -1,10 +1,11 @@
+#ifndef Room_hpp_INCLUDED
+#define Room_hpp_INCLUDED
+
 #include <vector>
-#ifndef room_hpp_INCLUDED
-#define room_hpp_INCLUDED
 
 namespace im {
 
-class room {
+class Room {
 public:
     enum { HEIGHT = 400 };
     enum { WIDTH = 560 };
@@ -17,5 +18,5 @@ public:
 
 }
 
-#endif // ndef room_hpp_INCLUDED
+#endif // ndef Room_hpp_INCLUDED
 
