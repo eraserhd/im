@@ -55,20 +55,20 @@ GLuint load_elevator_background(int n) {
 void render(Board const& b) {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    const int height = 480*11;
+    const int height = Board::CELL_HEIGHT * Board::HEIGHT;
 
     // elevator backgrounds
-    for (int i = 0; i < b.elevators.size(); ++i) {
+    for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
         int left = 320 + i*2*640, tleft = 0;
         int right = left + 2*640, tright = 2*640;
         if (i == 0)
             left = 0, tleft -= 320;
-        if (i == b.elevators.size()-1)
+        if (i == Board::ELEVATOR_COUNT-1)
             right += 320, tright += 320;
 
         const int height = 480*11;
 
-        glBindTexture(GL_TEXTURE_2D, b.elevators[i].bg_texture);
+        glBindTexture(GL_TEXTURE_2D, b.elevator(i).bg_texture);
         glBegin(GL_QUADS);
             glTexCoord2f(float(tleft)/512.0, 0); glVertex3f(left, 0, 0);
             glTexCoord2f(float(tright)/512.0, 0); glVertex3f(right, 0, 0);
@@ -79,7 +79,7 @@ void render(Board const& b) {
 
     // elevator shafts
     glBindTexture(GL_TEXTURE_2D, elevator_shaft);
-    for (int i = 0; i < b.elevators.size(); ++i) {
+    for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
         int center = 320+640 + i*2*640;
 
         glBegin(GL_QUADS);
@@ -147,14 +147,14 @@ void render(Board const& b) {
 
     // elevators
     glBindTexture(GL_TEXTURE_2D, elevator_texture);
-    for (int i = 0; i < b.elevators.size(); ++i) {
+    for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
         int center = 320+640 + i*2*640;
 
         glBegin(GL_QUADS);
-            glTexCoord2f(0,0); glVertex3f(center-40, b.elevators[i].bottom-180, 0);
-            glTexCoord2f(1,0); glVertex3f(center+40, b.elevators[i].bottom-180, 0);
-            glTexCoord2f(1,1); glVertex3f(center+40, b.elevators[i].bottom, 0);
-            glTexCoord2f(0,1); glVertex3f(center-40, b.elevators[i].bottom, 0);
+            glTexCoord2f(0,0); glVertex3f(center-40, b.elevator(i).bottom-180, 0);
+            glTexCoord2f(1,0); glVertex3f(center+40, b.elevator(i).bottom-180, 0);
+            glTexCoord2f(1,1); glVertex3f(center+40, b.elevator(i).bottom, 0);
+            glTexCoord2f(0,1); glVertex3f(center-40, b.elevator(i).bottom, 0);
         glEnd();
     }
 
@@ -177,19 +177,19 @@ void event_loop() {
             return;
 
         case SDL_USEREVENT:
-            for (int i = 0; i < g_board.elevators.size(); ++i) {
-                g_board.elevators[i].bottom += g_board.elevators[i].y_velocity;
-                if (g_board.elevators[i].y_velocity>0 && g_board.elevators[i].bottom > 480*11 - 20)
-                    g_board.elevators[i].y_velocity = -g_board.elevators[i].y_velocity;
-                else if (g_board.elevators[i].y_velocity<0 && g_board.elevators[i].bottom < 200)
-                    g_board.elevators[i].y_velocity = -g_board.elevators[i].y_velocity;
+            for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
+                g_board.elevator(i).bottom += g_board.elevator(i).y_velocity;
+                if (g_board.elevator(i).y_velocity>0 && g_board.elevator(i).bottom > 480*11 - 20)
+                    g_board.elevator(i).y_velocity = -g_board.elevator(i).y_velocity;
+                else if (g_board.elevator(i).y_velocity<0 && g_board.elevator(i).bottom < 200)
+                    g_board.elevator(i).y_velocity = -g_board.elevator(i).y_velocity;
             }
 
             {
                 glMatrixMode(GL_PROJECTION);
                 glLoadIdentity();
                 
-                int top = max(0,g_board.elevators[0].bottom - 180/2 - 480/2);
+                int top = max(0,g_board.elevator(0).bottom - 180/2 - 480/2);
 
                 //glOrtho(0.0f + 640, 640 + 640, 480 + top, 0.0f + top, -1.0f, 1.0f);
                 glOrtho(0.0f, 640*6, 480*6, 0.0f, -1.0f, 1.0f);
@@ -212,10 +212,10 @@ Uint32 timer(Uint32 interval, void* p) {
 }
 
 void init() {
-    for (int i = 0; i < g_board.elevators.size(); ++i) {
-        g_board.elevators[i].bg_texture = load_elevator_background(i);
-        g_board.elevators[i].bottom = rand()%480*10+100;
-        g_board.elevators[i].y_velocity = -10;
+    for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
+        g_board.elevator(i).bg_texture = load_elevator_background(i);
+        g_board.elevator(i).bottom = rand()%480*10+100;
+        g_board.elevator(i).y_velocity = -10;
     }
 
     elevator_shaft = load_bmp_as_texture("elevator-2.bmp");

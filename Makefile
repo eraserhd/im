@@ -2,7 +2,9 @@
 CXXFLAGS = $(shell sdl-config --cflags) -g
 LDFLAGS = $(shell sdl-config --libs) -g -lGL -lGLU
 
-testable_SOURCES = 	Board.cpp
+testable_SOURCES = 	Board.cpp \
+                        Cell.cpp
+
 
 im_SOURCES = 		$(testable_SOURCES) \
 			im.cpp

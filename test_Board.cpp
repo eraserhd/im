@@ -10,14 +10,30 @@
 using namespace std;
 using namespace im;
 
-BOOST_AUTO_TEST_CASE(board_contains_five_elevators) {
+BOOST_AUTO_TEST_CASE(all_cells_have_correct_positions) {
     Board b = Board::generate();
-    BOOST_CHECK_EQUAL(5, b.elevators.size());
-}
+    for (int i = 0; i < Board::HEIGHT; ++i)
+        for (int j = 0; j < Board::WIDTH; ++j) {
+            if (i>0) {
+                BOOST_CHECK_EQUAL(
+                        b.cell(i-1,j).position().upper_left().y + Board::CELL_HEIGHT,
+                        b.cell(i,j).position().upper_left().y
+                        );
+            } else {
+                BOOST_CHECK_EQUAL(0, b.cell(i,j).position().upper_left().y);
+            }
+            if (j>0) {
+                BOOST_CHECK_EQUAL(
+                        b.cell(i,j-1).position().upper_left().x + Board::CELL_WIDTH,
+                        b.cell(i,j).position().upper_left().x
+                        );
+            } else {
+                BOOST_CHECK_EQUAL(0, b.cell(i,j).position().upper_left().x);
+            }
 
-BOOST_AUTO_TEST_CASE(board_contains_six_columns_of_rooms) {
-    Board b = Board::generate();
-    BOOST_CHECK_EQUAL(6, b.rooms.size());
+            BOOST_CHECK_EQUAL((int) Board::CELL_WIDTH, b.cell(i,j).position().size().width());
+            BOOST_CHECK_EQUAL((int) Board::CELL_HEIGHT, b.cell(i,j).position().size().height());
+        }
 }
 
 BOOST_AUTO_TEST_CASE(generated_room_positions_have_no_off_board_exits) {
@@ -66,7 +82,7 @@ struct ConnectedChecker {
 
     void visit_shaft(int n) {
         BOOST_REQUIRE(n>=0);
-        BOOST_REQUIRE(n<b.elevators.size());
+        BOOST_REQUIRE(n<Board::ELEVATOR_COUNT);
         if (!shafts_seen.count(n)) {
             shafts_seen.insert(n);
             q.push(SHAFT);
@@ -106,14 +122,14 @@ struct ConnectedChecker {
                     visit_shaft(j-1);
                 }
                 if (!r.right_exits.empty()) {
-                    BOOST_REQUIRE(j<b.elevators.size());
+                    BOOST_REQUIRE(j<Board::ELEVATOR_COUNT);
                     visit_shaft(j);
                 }
             }
         }
 
         // Make sure we've seen all shafts
-        for (int i = 0; i < b.elevators.size(); ++i) {
+        for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
             BOOST_CHECK(shafts_seen.count(i));
         }
 
