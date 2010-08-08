@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string>
 #include "board.hpp"
+#include <boost/foreach.hpp>
 using namespace std;
 using namespace im;
 
@@ -18,11 +19,9 @@ SDL_Surface* screen;
 
 GLuint elevator_shaft;
 GLuint elevator_texture;
+GLuint left_hallway, right_hallway;
 
 board g_board(board::generate());
-//GLuint elevator_backgrounds[ELEVATOR_COUNT];
-//int elevator_y[ELEVATOR_COUNT];
-//int elevator_d[ELEVATOR_COUNT];
 
 void die(string const& msg) {
     cerr<<msg<<endl;
@@ -91,6 +90,61 @@ void render(board const& b) {
         glEnd();
     }
 
+    // exits
+    for (int j = 0; j < b.rooms.size(); ++j) {
+        for (int i = 0; i < b.rooms[j].size(); ++i) {
+            room const& r = b.rooms[j][i];
+
+            glBindTexture(GL_TEXTURE_2D, right_hallway);
+            BOOST_FOREACH(int o, r.left_exits) {
+                int ecenter = 320+640 + j*2*640;
+                int left = ecenter+40;
+                int right = left+326;
+                int top = o + 480*i;
+                int bottom = top + board::CORRIDOR_HEIGHT;
+
+                glBegin(GL_QUADS);
+                    glTexCoord2f(0,0); glVertex3f(left, top, 0);
+                    glTexCoord2f(1,0); glVertex3f(right, top, 0);
+                    glTexCoord2f(1,1); glVertex3f(right, bottom, 0);
+                    glTexCoord2f(0,1); glVertex3f(left, bottom, 0);
+                glEnd();
+            }
+
+            glBindTexture(GL_TEXTURE_2D, left_hallway);
+            BOOST_FOREACH(int o, r.right_exits) {
+                int ecenter = 320+640 + (j-1)*2*640;
+                int right = ecenter-40;
+                int left = right-324;
+
+                int top = o + 480*i;
+                int bottom = top + board::CORRIDOR_HEIGHT;
+
+                glBegin(GL_QUADS);
+                    glTexCoord2f(0,0); glVertex3f(left, top, 0);
+                    glTexCoord2f(1,0); glVertex3f(right, top, 0);
+                    glTexCoord2f(1,1); glVertex3f(right, bottom, 0);
+                    glTexCoord2f(0,1); glVertex3f(left, bottom, 0);
+                glEnd();
+            }
+        }
+    }
+
+    // rooms
+    //glColor3f(0,0,0);
+    for (int j = 0; j < b.rooms.size(); ++j) {
+        for (int i = 0; i < b.rooms[j].size(); ++i) {
+            /*
+            glBegin(GL_QUADS);
+                glVertex3f(left, top, 0);
+                glVertex3f(right, top, 0);
+                glVertex3f(right, bottom, 0);
+                glVertex3f(left, bottom, 0);
+            glEnd();
+            */
+        }
+    }
+
     // elevators
     glBindTexture(GL_TEXTURE_2D, elevator_texture);
     for (int i = 0; i < b.elevators.size(); ++i) {
@@ -137,7 +191,8 @@ void event_loop() {
                 
                 int top = max(0,g_board.elevators[0].bottom - 180/2 - 480/2);
 
-                glOrtho(0.0f + 640, 640 + 640, 480 + top, 0.0f + top, -1.0f, 1.0f);
+                //glOrtho(0.0f + 640, 640 + 640, 480 + top, 0.0f + top, -1.0f, 1.0f);
+                glOrtho(0.0f, 640*6, 480*6, 0.0f, -1.0f, 1.0f);
             }
 
             render(g_board);
@@ -160,11 +215,13 @@ void init() {
     for (int i = 0; i < g_board.elevators.size(); ++i) {
         g_board.elevators[i].bg_texture = load_elevator_background(i);
         g_board.elevators[i].bottom = rand()%480*10+100;
-        g_board.elevators[i].y_velocity = 10;
+        g_board.elevators[i].y_velocity = -10;
     }
 
     elevator_shaft = load_bmp_as_texture("elevator-2.bmp");
     elevator_texture = load_bmp_as_texture("elevator-0.bmp");
+    left_hallway = load_bmp_as_texture("elevator-3.bmp");
+    right_hallway = load_bmp_as_texture("elevator-4.bmp");
 }
 
 int main(int argc, char* argv[]) {
@@ -179,11 +236,6 @@ int main(int argc, char* argv[]) {
     glEnable(GL_TEXTURE_2D);
     glViewport(0, 0, 640, 480);
      
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-     
-    glOrtho(0.0f, 640*11, 480*11, 0.0f, -1.0f, 1.0f);
-            
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 

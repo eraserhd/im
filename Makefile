@@ -1,6 +1,6 @@
 
-CXXFLAGS = $(shell sdl-config --cflags)
-LDFLAGS = $(shell sdl-config --libs) -lGL -lGLU
+CXXFLAGS = $(shell sdl-config --cflags) -g
+LDFLAGS = $(shell sdl-config --libs) -g -lGL -lGLU
 
 testable_SOURCES = 	board.cpp
 
