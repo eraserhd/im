@@ -1,1 +1,4 @@
 im
+test_board
+*.o
+.depends

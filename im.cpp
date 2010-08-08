@@ -8,19 +8,21 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "board.hpp"
 using namespace std;
+using namespace im;
 
 #define VERSION "0.3"
 
 SDL_Surface* screen;
 
-#define ELEVATOR_COUNT 5
-GLuint elevator_backgrounds[ELEVATOR_COUNT];
 GLuint elevator_shaft;
-GLuint elevator;
+GLuint elevator_texture;
 
-int elevator_y[ELEVATOR_COUNT];
-int elevator_d[ELEVATOR_COUNT];
+board g_board(board::generate());
+//GLuint elevator_backgrounds[ELEVATOR_COUNT];
+//int elevator_y[ELEVATOR_COUNT];
+//int elevator_d[ELEVATOR_COUNT];
 
 void die(string const& msg) {
     cerr<<msg<<endl;
@@ -51,23 +53,23 @@ GLuint load_elevator_background(int n) {
     return load_bmp_as_texture(out.str());
 }
 
-void redraw() {
+void render(board const& b) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     const int height = 480*11;
 
     // elevator backgrounds
-    for (int i = 0; i < ELEVATOR_COUNT; ++i) {
+    for (int i = 0; i < b.elevators.size(); ++i) {
         int left = 320 + i*2*640, tleft = 0;
         int right = left + 2*640, tright = 2*640;
         if (i == 0)
             left = 0, tleft -= 320;
-        if (i == ELEVATOR_COUNT-1)
+        if (i == b.elevators.size()-1)
             right += 320, tright += 320;
 
         const int height = 480*11;
 
-        glBindTexture(GL_TEXTURE_2D, elevator_backgrounds[i]);
+        glBindTexture(GL_TEXTURE_2D, b.elevators[i].bg_texture);
         glBegin(GL_QUADS);
             glTexCoord2f(float(tleft)/512.0, 0); glVertex3f(left, 0, 0);
             glTexCoord2f(float(tright)/512.0, 0); glVertex3f(right, 0, 0);
@@ -78,7 +80,7 @@ void redraw() {
 
     // elevator shafts
     glBindTexture(GL_TEXTURE_2D, elevator_shaft);
-    for (int i = 0; i < ELEVATOR_COUNT; ++i) {
+    for (int i = 0; i < b.elevators.size(); ++i) {
         int center = 320+640 + i*2*640;
 
         glBegin(GL_QUADS);
@@ -90,15 +92,15 @@ void redraw() {
     }
 
     // elevators
-    glBindTexture(GL_TEXTURE_2D, elevator);
-    for (int i = 0; i < ELEVATOR_COUNT; ++i) {
+    glBindTexture(GL_TEXTURE_2D, elevator_texture);
+    for (int i = 0; i < b.elevators.size(); ++i) {
         int center = 320+640 + i*2*640;
 
         glBegin(GL_QUADS);
-            glTexCoord2f(0,0); glVertex3f(center-40, elevator_y[i]-180, 0);
-            glTexCoord2f(1,0); glVertex3f(center+40, elevator_y[i]-180, 0);
-            glTexCoord2f(1,1); glVertex3f(center+40, elevator_y[i], 0);
-            glTexCoord2f(0,1); glVertex3f(center-40, elevator_y[i], 0);
+            glTexCoord2f(0,0); glVertex3f(center-40, b.elevators[i].bottom-180, 0);
+            glTexCoord2f(1,0); glVertex3f(center+40, b.elevators[i].bottom-180, 0);
+            glTexCoord2f(1,1); glVertex3f(center+40, b.elevators[i].bottom, 0);
+            glTexCoord2f(0,1); glVertex3f(center-40, b.elevators[i].bottom, 0);
         glEnd();
     }
 
@@ -121,24 +123,24 @@ void event_loop() {
             return;
 
         case SDL_USEREVENT:
-            for (int i = 0; i < ELEVATOR_COUNT; ++i) {
-                elevator_y[i] += elevator_d[i];
-                if (elevator_d[i]>0 && elevator_y[i] > 480*11 - 20)
-                    elevator_d[i] = -elevator_d[i];
-                else if (elevator_d[i]<0 && elevator_y[i] < 200)
-                    elevator_d[i] = -elevator_d[i];
+            for (int i = 0; i < g_board.elevators.size(); ++i) {
+                g_board.elevators[i].bottom += g_board.elevators[i].y_velocity;
+                if (g_board.elevators[i].y_velocity>0 && g_board.elevators[i].bottom > 480*11 - 20)
+                    g_board.elevators[i].y_velocity = -g_board.elevators[i].y_velocity;
+                else if (g_board.elevators[i].y_velocity<0 && g_board.elevators[i].bottom < 200)
+                    g_board.elevators[i].y_velocity = -g_board.elevators[i].y_velocity;
             }
 
             {
                 glMatrixMode(GL_PROJECTION);
                 glLoadIdentity();
                 
-                int top = max(0,elevator_y[0] - 180/2 - 480/2);
+                int top = max(0,g_board.elevators[0].bottom - 180/2 - 480/2);
 
                 glOrtho(0.0f + 640, 640 + 640, 480 + top, 0.0f + top, -1.0f, 1.0f);
             }
 
-            redraw();
+            render(g_board);
             break;
         }
     }
@@ -155,14 +157,14 @@ Uint32 timer(Uint32 interval, void* p) {
 }
 
 void init() {
-    for (int i = 0; i < ELEVATOR_COUNT; ++i) {
-        elevator_backgrounds[i] = load_elevator_background(i);
-        elevator_y[i] = rand()%480*10+100;
-        elevator_d[i] = 10;
+    for (int i = 0; i < g_board.elevators.size(); ++i) {
+        g_board.elevators[i].bg_texture = load_elevator_background(i);
+        g_board.elevators[i].bottom = rand()%480*10+100;
+        g_board.elevators[i].y_velocity = 10;
     }
 
     elevator_shaft = load_bmp_as_texture("elevator-2.bmp");
-    elevator = load_bmp_as_texture("elevator-0.bmp");
+    elevator_texture = load_bmp_as_texture("elevator-0.bmp");
 }
 
 int main(int argc, char* argv[]) {
