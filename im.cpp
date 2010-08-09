@@ -55,9 +55,10 @@ GLuint load_elevator_background(int n) {
 void render(Board const& b) {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    const int height = Board::CELL_HEIGHT * Board::HEIGHT;
+//    const int height = Board::CELL_HEIGHT * Board::HEIGHT;
 
     // elevator backgrounds
+    /*
     for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
         int left = 320 + i*2*640, tleft = 0;
         int right = left + 2*640, tright = 2*640;
@@ -88,8 +89,8 @@ void render(Board const& b) {
             glTexCoord2f(1,float(height)/20.0); glVertex3f(center+40, height, 0);
             glTexCoord2f(0,float(height)/20.0); glVertex3f(center-40, height, 0);
         glEnd();
-    }
-
+    }*/
+/*
     // exits
     for (int j = 0; j < b.rooms.size(); ++j) {
         for (int i = 0; i < b.rooms[j].size(); ++i) {
@@ -134,14 +135,13 @@ void render(Board const& b) {
     //glColor3f(0,0,0);
     for (int j = 0; j < b.rooms.size(); ++j) {
         for (int i = 0; i < b.rooms[j].size(); ++i) {
-            /*
+            / *
             glBegin(GL_QUADS);
                 glVertex3f(left, top, 0);
                 glVertex3f(right, top, 0);
                 glVertex3f(right, bottom, 0);
                 glVertex3f(left, bottom, 0);
             glEnd();
-            */
         }
     }
 
@@ -157,6 +157,7 @@ void render(Board const& b) {
             glTexCoord2f(0,1); glVertex3f(center-40, b.elevator(i).bottom, 0);
         glEnd();
     }
+            */
 
 
     SDL_GL_SwapBuffers();
@@ -177,6 +178,7 @@ void event_loop() {
             return;
 
         case SDL_USEREVENT:
+            /*
             for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
                 g_board.elevator(i).bottom += g_board.elevator(i).y_velocity;
                 if (g_board.elevator(i).y_velocity>0 && g_board.elevator(i).bottom > 480*11 - 20)
@@ -184,12 +186,13 @@ void event_loop() {
                 else if (g_board.elevator(i).y_velocity<0 && g_board.elevator(i).bottom < 200)
                     g_board.elevator(i).y_velocity = -g_board.elevator(i).y_velocity;
             }
+            */
 
             {
                 glMatrixMode(GL_PROJECTION);
                 glLoadIdentity();
                 
-                int top = max(0,g_board.elevator(0).bottom - 180/2 - 480/2);
+                //int top = max(0,g_board.elevator(0).bottom - 180/2 - 480/2);
 
                 //glOrtho(0.0f + 640, 640 + 640, 480 + top, 0.0f + top, -1.0f, 1.0f);
                 glOrtho(0.0f, 640*6, 480*6, 0.0f, -1.0f, 1.0f);
@@ -212,11 +215,13 @@ Uint32 timer(Uint32 interval, void* p) {
 }
 
 void init() {
+    /*
     for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
         g_board.elevator(i).bg_texture = load_elevator_background(i);
         g_board.elevator(i).bottom = rand()%480*10+100;
         g_board.elevator(i).y_velocity = -10;
     }
+    */
 
     elevator_shaft = load_bmp_as_texture("elevator-2.bmp");
     elevator_texture = load_bmp_as_texture("elevator-0.bmp");

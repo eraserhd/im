@@ -1,6 +1,9 @@
 #ifndef Cell_hpp_INCLUDED
 #define Cell_hpp_INCLUDED
 
+#include <boost/function.hpp>
+#include <cassert>
+
 namespace im {
 
 struct Point {
@@ -59,19 +62,6 @@ public:
 private:
     Point upper_left_;
     Size size_;
-};
-
-class Cell {
-public:
-    inline Rect const& position() const {
-        return position_;
-    }
-    inline Rect& position() {
-        return position_;
-    }
-
-private:
-    Rect position_;
 };
 
 }

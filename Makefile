@@ -14,7 +14,7 @@ test_PROGRAMS =		test_Board
 testable_OBJECTS =	$(addsuffix .o,$(basename $(testable_SOURCES)))
 im_OBJECTS =		$(addsuffix .o,$(basename $(testable_OBJECTS)))
 
-all: test im
+all: im test
 
 test: $(test_PROGRAMS)
 	for p in $(test_PROGRAMS); do \

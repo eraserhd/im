@@ -8,34 +8,6 @@ using namespace std;
 
 namespace im {
 
-Cell const& Board::cell(int i, int j) const {
-    assert(i>=0);
-    assert(i<HEIGHT);
-    assert(j>=0);
-    assert(j<WIDTH);
-    return cells_[i][j];
-}
-
-Cell& Board::cell(int i, int j) {
-    assert(i>=0);
-    assert(i<HEIGHT);
-    assert(j>=0);
-    assert(j<WIDTH);
-    return cells_[i][j];
-}
-
-Elevator const& Board::elevator(int n) const {
-    assert(n>=0);
-    assert(n<ELEVATOR_COUNT);
-    return elevators_[n];
-}
-
-Elevator& Board::elevator(int n) {
-    assert(n>=0);
-    assert(n<ELEVATOR_COUNT);
-    return elevators_[n];
-}
-
 vector<Room> load_rooms() {
     vector<Room> result;
 
@@ -112,17 +84,12 @@ Board Board::generate() {
         }
     }
 
-    return Board(rooms);
+    return Board();
 }
 
-Board::Board(vector<vector<Room> > const& rooms)
-    : rooms(rooms)
+Board::Board()
 {
-    for (int i = 0; i < HEIGHT; ++i)
-        for (int j = 0; j < WIDTH; ++j) {
-            cells_[i][j].position().upper_left() = Point(j*CELL_WIDTH, i*CELL_HEIGHT);
-            cells_[i][j].position().size() = Size(CELL_WIDTH, CELL_HEIGHT);
-        }
+    // add elevator backgrounds
 }
 
 }

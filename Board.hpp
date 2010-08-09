@@ -2,12 +2,20 @@
 #define Board_hpp_INCLUDED
 
 #include <algorithm>
+#include <list>
+#include <map>
+#include <string>
 #include <vector>
-#include "Cell.hpp"
+#include "Object.hpp"
 #include "Elevator.hpp"
 #include "Room.hpp"
+#include <boost/any.hpp>
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/contains.hpp>
 
 namespace im {
+
+struct Background {};
 
 class Board {
 public:
@@ -19,28 +27,30 @@ public:
         HEIGHT = 6,
         
         ELEVATOR_COUNT = 5
-
-
     };
 
-    Cell const& cell(int i, int j) const;
-    Cell& cell(int i, int j);
-
-    Elevator const& elevator(int n) const;
-    Elevator& elevator(int n);
-
     enum { CORRIDOR_HEIGHT = 104 };
-
-    std::vector<std::vector<Room> > rooms;
 
     static Board generate();
 
 private:
-    Cell cells_[HEIGHT][WIDTH];
-    Elevator elevators_[ELEVATOR_COUNT];
+    typedef boost::mpl::vector<Background> object_types;
 
-    Board(std::vector<std::vector<Room> > const& rooms
-          );
+public:
+    // Add different classes of values (but only the ones in the object_types type-vector).
+    template<typename T>
+    void push_back(
+            T t,
+            typename boost::enable_if<typename boost::mpl::contains<object_types, T>::type >::type* dummy = 0
+            )
+    {
+        objects_.push_back(boost::any(t));
+    }
+
+private:
+    std::vector<boost::any> objects_;
+
+    Board();
 };
 
 }

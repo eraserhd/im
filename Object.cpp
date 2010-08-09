@@ -1,4 +1,4 @@
-#include "Cell.hpp"
+#include "Object.hpp"
 using namespace std;
 
 namespace im {
