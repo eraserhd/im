@@ -2,3 +2,4 @@ im
 test_Board
 *.o
 .depends
+*.exe
