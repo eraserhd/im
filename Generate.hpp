@@ -95,6 +95,7 @@ public:
         Board b;
 
         // add elevator backgrounds
+        const int height = Board::CELL_HEIGHT * Board::HEIGHT;
         for (int j = 0; j < Board::ELEVATOR_COUNT; ++j) {
             int left = Board::CELL_WIDTH/2 + j*2*Board::CELL_WIDTH, tleft = 0;
             int right = left + 2*Board::CELL_WIDTH, tright = 2*Board::CELL_WIDTH;
@@ -103,13 +104,15 @@ public:
             if (j == Board::ELEVATOR_COUNT-1)
                 right += Board::CELL_WIDTH/2, tright += Board::CELL_WIDTH/2;
 
-            const int height = Board::CELL_HEIGHT * Board::HEIGHT;
-
-
             GLuint texture = load_elevator_bg(j);
-            std::cerr<<"left="<<left<<", right="<<right<<", height="<<height<<std::endl;
-            std::cerr<<"teture="<<texture<<std::endl;
             b.push_back(Background(Rect(Point(left,0), Size(right-left, height)), texture));
+        }
+
+        // elevator shafts
+        GLuint es_texture = loader.load_texture("elevator-2.bmp");
+        for (int j = 0; j < Board::ELEVATOR_COUNT; ++j) {
+            int center = 320+640 + j*2*640;
+            b.push_back(ElevatorShaft(Rect(Point(center-40,0), Size(80,height)), es_texture));
         }
 
         return b;

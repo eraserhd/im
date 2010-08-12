@@ -18,9 +18,7 @@ using namespace im;
 
 SDL_Surface* screen;
 
-GLuint elevator_shaft;
-GLuint elevator_texture;
-GLuint left_hallway, right_hallway;
+Board g_board;
 
 void die(string const& msg) {
     cerr<<msg<<endl;
@@ -47,28 +45,12 @@ struct GLLoader {
     }
 };
 
-Board g_board;
-
 void render(Board const& b) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     b.render();
-//    const int height = Board::CELL_HEIGHT * Board::HEIGHT;
 
     /*
-    // elevator shafts
-    glBindTexture(GL_TEXTURE_2D, elevator_shaft);
-    for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
-        int center = 320+640 + i*2*640;
-
-        glBegin(GL_QUADS);
-            glTexCoord2f(0,0); glVertex3f(center-40, 0, 0);
-            glTexCoord2f(1,0); glVertex3f(center+40, 0, 0);
-            glTexCoord2f(1,float(height)/20.0); glVertex3f(center+40, height, 0);
-            glTexCoord2f(0,float(height)/20.0); glVertex3f(center-40, height, 0);
-        glEnd();
-    }*/
-/*
     // exits
     for (int j = 0; j < b.rooms.size(); ++j) {
         for (int i = 0; i < b.rooms[j].size(); ++i) {

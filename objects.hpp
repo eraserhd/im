@@ -24,6 +24,23 @@ private:
     Rect bounds_;
 };
 
+class ElevatorShaft {
+public:
+    ElevatorShaft();
+    ElevatorShaft(Rect const& bounds, GLuint texture);
+
+    struct Render {
+        void operator () (ElevatorShaft const& es) const;
+    };
+
+    inline Rect const& bounds() const {
+        return bounds_;
+    }
+
+private:
+    GLuint texture_;
+    Rect bounds_;
+};
 
 
 }
