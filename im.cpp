@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string>
 #include "Board.hpp"
+#include "Generate.hpp"
 #include <boost/foreach.hpp>
 using namespace std;
 using namespace im;
@@ -21,63 +22,40 @@ GLuint elevator_shaft;
 GLuint elevator_texture;
 GLuint left_hallway, right_hallway;
 
-Board g_board(Board::generate());
-
 void die(string const& msg) {
     cerr<<msg<<endl;
     exit(EXIT_FAILURE);
 }
 
-GLuint load_bmp_as_texture(string const& name) {
-    SDL_Surface *s = SDL_LoadBMP(("data/" + name).c_str());
-    if (NULL == s)
-        die("Could not load " + name);
+struct GLLoader {
+    static GLuint load_texture(string const& name) {
+        SDL_Surface *s = SDL_LoadBMP(("data/" + name).c_str());
+        if (NULL == s)
+            die("Could not load " + name);
 
-    GLuint result;
-    glGenTextures(1, &result);
-    glBindTexture(GL_TEXTURE_2D, result);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        GLuint result;
+        glGenTextures(1, &result);
+        glBindTexture(GL_TEXTURE_2D, result);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, s->w, s->h, 0, 
-                 GL_BGR, GL_UNSIGNED_BYTE, s->pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, 3, s->w, s->h, 0, 
+                     GL_BGR, GL_UNSIGNED_BYTE, s->pixels);
 
-    SDL_FreeSurface(s);
-    return result;
-}
+        SDL_FreeSurface(s);
+        return result;
+    }
+};
 
-GLuint load_elevator_background(int n) {
-    ostringstream out;
-    out << "elevator-background-" << n << ".bmp";
-    return load_bmp_as_texture(out.str());
-}
+Board g_board;
 
 void render(Board const& b) {
     glClear(GL_COLOR_BUFFER_BIT);
 
+    b.render();
 //    const int height = Board::CELL_HEIGHT * Board::HEIGHT;
 
-    // elevator backgrounds
     /*
-    for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
-        int left = 320 + i*2*640, tleft = 0;
-        int right = left + 2*640, tright = 2*640;
-        if (i == 0)
-            left = 0, tleft -= 320;
-        if (i == Board::ELEVATOR_COUNT-1)
-            right += 320, tright += 320;
-
-        const int height = 480*11;
-
-        glBindTexture(GL_TEXTURE_2D, b.elevator(i).bg_texture);
-        glBegin(GL_QUADS);
-            glTexCoord2f(float(tleft)/512.0, 0); glVertex3f(left, 0, 0);
-            glTexCoord2f(float(tright)/512.0, 0); glVertex3f(right, 0, 0);
-            glTexCoord2f(float(tright)/512.0, float(height)/512.0); glVertex3f(right, height, 0);
-            glTexCoord2f(float(tleft)/512.0, float(height)/512.0); glVertex3f(left, height, 0);
-        glEnd();
-    }
-
     // elevator shafts
     glBindTexture(GL_TEXTURE_2D, elevator_shaft);
     for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
@@ -214,21 +192,6 @@ Uint32 timer(Uint32 interval, void* p) {
     return interval;
 }
 
-void init() {
-    /*
-    for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
-        g_board.elevator(i).bg_texture = load_elevator_background(i);
-        g_board.elevator(i).bottom = rand()%480*10+100;
-        g_board.elevator(i).y_velocity = -10;
-    }
-    */
-
-    elevator_shaft = load_bmp_as_texture("elevator-2.bmp");
-    elevator_texture = load_bmp_as_texture("elevator-0.bmp");
-    left_hallway = load_bmp_as_texture("elevator-3.bmp");
-    right_hallway = load_bmp_as_texture("elevator-4.bmp");
-}
-
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO) != 0)
         die("SDL_Init failed");
@@ -244,7 +207,7 @@ int main(int argc, char* argv[]) {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    init();
+    g_board = Generate<GLLoader>() ();
 
     SDL_AddTimer(30, timer, NULL);
     event_loop();

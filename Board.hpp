@@ -6,16 +6,16 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "Object.hpp"
-#include "Elevator.hpp"
+#include "geometry.hpp"
+#include "objects.hpp"
 #include "Room.hpp"
 #include <boost/any.hpp>
-#include <boost/mpl/vector.hpp>
 #include <boost/mpl/contains.hpp>
+#include <boost/mpl/for_each.hpp>
+#include <boost/mpl/vector.hpp>
+#include <utility>
 
 namespace im {
-
-struct Background {};
 
 class Board {
 public:
@@ -31,8 +31,6 @@ public:
 
     enum { CORRIDOR_HEIGHT = 104 };
 
-    static Board generate();
-
 private:
     typedef boost::mpl::vector<Background> object_types;
 
@@ -41,16 +39,73 @@ public:
     template<typename T>
     void push_back(
             T t,
-            typename boost::enable_if<typename boost::mpl::contains<object_types, T>::type >::type* dummy = 0
+            typename boost::enable_if<
+                typename boost::mpl::contains<
+                    object_types,
+                    T
+                    >::type
+                >::type* dummy = 0
             )
     {
         objects_.push_back(boost::any(t));
     }
 
 private:
-    std::vector<boost::any> objects_;
+    template<typename VisitorT>
+    struct VisitorAdaptor {
+        VisitorAdaptor(VisitorT const& visitor, std::vector<boost::any> objects)
+            : visitor(visitor)
+            , objects(objects)
+        {}
+
+        template<typename T>
+        void operator () (T&) const
+        {
+            for (std::vector<boost::any>::const_iterator i = objects.begin();
+                 i != objects.end();
+                 ++i)
+            {
+                if (typeid(T) == i->type())
+                    visitor(boost::any_cast<T>(*i));
+            }
+        }
+
+    private:
+        VisitorT const& visitor;
+        std::vector<boost::any> const& objects;
+    };
+
+    struct Render {
+        template<typename T>
+        void operator () (
+                T const& o, 
+                typename T::Render* dummy = 0
+                ) const
+        {
+            typename T::Render()(o);
+        }
+
+        void operator () (...) const {
+        }
+    };
+
+public:
+    template<typename T>
+    void visit(T const& visitor) const
+    {
+        boost::mpl::for_each<object_types>(VisitorAdaptor<T>(visitor, objects_));
+    }
+
+    void render() const
+    {
+        visit(Render());
+    }
 
     Board();
+
+private:
+    std::vector<boost::any> objects_;
+
 };
 
 }

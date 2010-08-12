@@ -1,5 +1,5 @@
-#ifndef Cell_hpp_INCLUDED
-#define Cell_hpp_INCLUDED
+#ifndef geometry_hpp_INCLUDED
+#define geometry_hpp_INCLUDED
 
 #include <boost/function.hpp>
 #include <cassert>
@@ -59,6 +59,28 @@ public:
         return size_;
     }
 
+    inline int left() const {
+        return upper_left_.x;
+    }
+    inline int right() const {
+        return upper_left_.x + size_.width();
+    }
+    inline int top() const {
+        return upper_left_.y;
+    }
+    inline int bottom() const {
+        return upper_left_.y + size_.height();
+    }
+
+    inline Rect()
+        : upper_left_()
+        , size_()
+    {}
+    inline Rect(Point const& upper_left, Size const& size)
+        : upper_left_(upper_left)
+        , size_(size)
+    {}
+
 private:
     Point upper_left_;
     Size size_;
@@ -66,5 +88,5 @@ private:
 
 }
 
-#endif // ndef Cell_hpp_INCLUDED
+#endif // ndef geometry_hpp_INCLUDED
 

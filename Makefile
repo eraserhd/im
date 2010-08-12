@@ -18,7 +18,8 @@ EXESUFFIX =
 endif
 
 testable_SOURCES = 	Board.cpp \
-                        Object.cpp
+                        geometry.cpp \
+			objects.cpp
 
 
 im_SOURCES = 		$(testable_SOURCES) \
