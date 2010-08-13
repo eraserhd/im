@@ -1,10 +1,9 @@
-#include <iostream>
 #ifndef Generate_hpp_INCLUDED
 #define Generate_hpp_INCLUDED
 
 #include <sstream>
 #include <vector>
-#include "Elevator.hpp"
+#include "objects.hpp"
 
 namespace im {
 
@@ -43,12 +42,8 @@ public:
     {}
 
     Board operator () () const {
-        std::vector<Elevator> elevators;
         const int COLUMNS = 6;
         std::vector<std::vector<Room> > rooms(COLUMNS);
-
-        for (int i = 0; i < 5; ++i)
-            elevators.push_back(Elevator());
 
         std::vector<Room> available_rooms = load_rooms();
         random_shuffle(available_rooms.begin(), available_rooms.end());
@@ -114,6 +109,15 @@ public:
             int center = 320+640 + j*2*640;
             b.push_back(ElevatorShaft(Rect(Point(center-40,0), Size(80,height)), es_texture));
         }
+
+        // elevators
+        GLuint e_texture = loader.load_texture("elevator-0.bmp");
+        for (int i = 0; i < 5; ++i) {
+            int center = 320+640 + i*2*640;
+
+            b.push_back(Elevator(Rect(Point(center-40,10), Size(80,180)), e_texture));
+        }
+
 
         return b;
     }

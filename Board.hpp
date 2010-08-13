@@ -32,7 +32,11 @@ public:
     enum { CORRIDOR_HEIGHT = 104 };
 
 private:
-    typedef boost::mpl::vector<Background, ElevatorShaft> object_types;
+    typedef boost::mpl::vector<
+        Background,
+        ElevatorShaft,
+        Elevator
+        > object_types;
 
 public:
     // Add different classes of values (but only the ones in the object_types type-vector).

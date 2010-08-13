@@ -155,7 +155,7 @@ void event_loop() {
                 //int top = max(0,g_board.elevator(0).bottom - 180/2 - 480/2);
 
                 //glOrtho(0.0f + 640, 640 + 640, 480 + top, 0.0f + top, -1.0f, 1.0f);
-                glOrtho(0.0f, 640*6, 480*6, 0.0f, -1.0f, 1.0f);
+                glOrtho(0.0f, 640*3, 480*3, 0.0f, -1.0f, 1.0f);
             }
 
             render(g_board);
