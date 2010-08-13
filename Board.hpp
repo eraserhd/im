@@ -75,17 +75,32 @@ private:
         std::vector<boost::any> const& objects;
     };
 
+    // Is type T renderable?
+    template<typename T>
+    struct Renderable {
+    private:
+        template<typename U>
+        static char test(typename U::Render*);
+
+        template<typename U>
+        static char (&test(...))[2];
+
+    public:
+        static const bool value = sizeof(test<T>(0)) == 1;
+    };
+
+    // Render renderable types (NOP for other types)
     struct Render {
         template<typename T>
-        void operator () (
-                T const& o, 
-                typename T::Render* dummy = 0
-                ) const
+        typename boost::enable_if<Renderable<T>, void>::type
+        operator () (T const& o) const
         {
             typename T::Render()(o);
         }
 
-        void operator () (...) const {
+        template<typename T>
+        typename boost::disable_if<Renderable<T>, void>::type
+        operator () (T const&) const {
         }
     };
 
