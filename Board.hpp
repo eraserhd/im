@@ -97,14 +97,14 @@ private:
     struct Render {
         template<typename T>
         typename boost::enable_if<Renderable<T>, void>::type
-        operator () (T const& o) const
+        operator () (T const& o, char* dummy = 0) const
         {
             typename T::Render()(o);
         }
 
         template<typename T>
         typename boost::disable_if<Renderable<T>, void>::type
-        operator () (T const&) const {
+        operator () (T const&, int* dummy = 0) const {
         }
     };
 
