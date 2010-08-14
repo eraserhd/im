@@ -11,6 +11,7 @@
 #include "Board.hpp"
 #include "Generate.hpp"
 #include <boost/foreach.hpp>
+#include "RealGL.hpp"
 using namespace std;
 using namespace im;
 
@@ -25,30 +26,28 @@ void die(string const& msg) {
     exit(EXIT_FAILURE);
 }
 
-struct GLLoader {
-    static GLuint load_texture(string const& name) {
-        SDL_Surface *s = SDL_LoadBMP(("data/" + name).c_str());
-        if (NULL == s)
-            die("Could not load " + name);
+GLuint RealGL::load_texture(string const& name) {
+    SDL_Surface *s = SDL_LoadBMP(("data/" + name).c_str());
+    if (NULL == s)
+        die("Could not load " + name);
 
-        GLuint result;
-        glGenTextures(1, &result);
-        glBindTexture(GL_TEXTURE_2D, result);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GLuint result;
+    glGenTextures(1, &result);
+    glBindTexture(GL_TEXTURE_2D, result);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, 3, s->w, s->h, 0, 
-                     GL_BGR, GL_UNSIGNED_BYTE, s->pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, s->w, s->h, 0, 
+                 GL_BGR, GL_UNSIGNED_BYTE, s->pixels);
 
-        SDL_FreeSurface(s);
-        return result;
-    }
-};
+    SDL_FreeSurface(s);
+    return result;
+}
 
 void render(Board const& b) {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    b.render();
+    b.render<RealGL>();
 
     /*
     // exits
@@ -104,20 +103,7 @@ void render(Board const& b) {
             glEnd();
         }
     }
-
-    // elevators
-    glBindTexture(GL_TEXTURE_2D, elevator_texture);
-    for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
-        int center = 320+640 + i*2*640;
-
-        glBegin(GL_QUADS);
-            glTexCoord2f(0,0); glVertex3f(center-40, b.elevator(i).bottom-180, 0);
-            glTexCoord2f(1,0); glVertex3f(center+40, b.elevator(i).bottom-180, 0);
-            glTexCoord2f(1,1); glVertex3f(center+40, b.elevator(i).bottom, 0);
-            glTexCoord2f(0,1); glVertex3f(center-40, b.elevator(i).bottom, 0);
-        glEnd();
-    }
-            */
+     */
 
 
     SDL_GL_SwapBuffers();
@@ -189,7 +175,7 @@ int main(int argc, char* argv[]) {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    g_board = Generate<GLLoader>() ();
+    g_board = Generate<RealGL>() ();
 
     SDL_AddTimer(30, timer, NULL);
     event_loop();

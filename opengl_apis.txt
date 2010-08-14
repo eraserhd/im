@@ -1,0 +1,5 @@
+void glBegin(int what);
+void glEnd();
+void glBindTexture(int what, GLuint texture);
+void glTexCoord2f(float x, float y);
+void glVertex3f(float x, float y, float z);

@@ -1,4 +1,4 @@
-#define BOOST_TEST_MODULE board_test
+#define BOOST_TEST_MODULE BoardTest
 #include <boost/test/unit_test.hpp>
 
 #include <algorithm>

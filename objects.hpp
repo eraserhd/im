@@ -12,7 +12,17 @@ public:
     Background(Rect const& bounds, GLuint texture);
 
     struct Render {
-        void operator () (Background const& bg) const;
+        template<typename GL>
+        static void apply(Background const& bg) {
+            Rect const& r = bg.bounds();
+            GL::glBindTexture(GL_TEXTURE_2D, bg.texture_);
+            GL::glBegin(GL_QUADS);
+                GL::glTexCoord2f(float(r.left())/512.0, 0); GL::glVertex3f(r.left(), r.top(), 0);
+                GL::glTexCoord2f(float(r.right())/512.0, 0); GL::glVertex3f(r.right(), r.top(), 0);
+                GL::glTexCoord2f(float(r.right())/512.0, float(r.bottom())/512.0); GL::glVertex3f(r.right(), r.bottom(), 0);
+                GL::glTexCoord2f(float(r.left())/512.0, float(r.bottom())/512.0); GL::glVertex3f(r.left(), r.bottom(), 0);
+            GL::glEnd();
+        }
     };
 
     inline Rect const& bounds() const {
@@ -30,7 +40,17 @@ public:
     ElevatorShaft(Rect const& bounds, GLuint texture);
 
     struct Render {
-        void operator () (ElevatorShaft const& es) const;
+        template<typename GL>
+        static void apply(ElevatorShaft const& es) {
+            Rect const& r = es.bounds();
+            GL::glBindTexture(GL_TEXTURE_2D, es.texture_);
+            GL::glBegin(GL_QUADS);
+                GL::glTexCoord2f(0, 0); GL::glVertex3f(r.left(), r.top(), 0);
+                GL::glTexCoord2f(1, 0); GL::glVertex3f(r.right(), r.top(), 0);
+                GL::glTexCoord2f(1, float(r.bottom())/20.0); GL::glVertex3f(r.right(), r.bottom(), 0);
+                GL::glTexCoord2f(0, float(r.bottom())/20.0); GL::glVertex3f(r.left(), r.bottom(), 0);
+            GL::glEnd();
+        }
     };
 
     inline Rect const& bounds() const {
@@ -48,7 +68,17 @@ public:
     Elevator(Rect const& bounds, GLuint texture);
     
     struct Render {
-        void operator () (Elevator const& e) const;
+        template<typename GL>
+        static void apply(Elevator const& e) {
+            Rect const& r = e.bounds();
+            GL::glBindTexture(GL_TEXTURE_2D, e.texture_);
+            GL::glBegin(GL_QUADS);
+                GL::glTexCoord2f(0, 0); GL::glVertex3f(r.left(), r.top(), 0);
+                GL::glTexCoord2f(1, 0); GL::glVertex3f(r.right(), r.top(), 0);
+                GL::glTexCoord2f(1, 1); GL::glVertex3f(r.right(), r.bottom(), 0);
+                GL::glTexCoord2f(0, 1); GL::glVertex3f(r.left(), r.bottom(), 0);
+            GL::glEnd();
+        }
     };
 
     inline Rect const& bounds() const {

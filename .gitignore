@@ -3,3 +3,5 @@ test_Board
 *.o
 .depends
 *.exe
+mock_glwrap.hpp
+real_glwrap.hpp

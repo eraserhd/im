@@ -94,12 +94,15 @@ private:
     };
 
     // Render renderable types (NOP for other types)
+    template<typename GLImplT>
     struct Render {
         template<typename T>
         typename boost::enable_if<Renderable<T>, void>::type
         operator () (T const& o, char* dummy = 0) const
         {
-            typename T::Render()(o);
+            typedef typename T::Render R;
+            R::template apply<GLImplT>(o);
+            //typename T::Render::template apply<GLImplT>(o);
         }
 
         template<typename T>
@@ -115,9 +118,10 @@ public:
         boost::mpl::for_each<object_types>(VisitorAdaptor<T>(visitor, objects_));
     }
 
+    template<typename GLImplT>
     void render() const
     {
-        visit(Render());
+        visit(Render<GLImplT>());
     }
 
     Board();

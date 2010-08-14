@@ -19,18 +19,25 @@ endif
 
 testable_SOURCES = 	Board.cpp \
                         geometry.cpp \
-			objects.cpp
+			objects.cpp \
+			MockGL.cpp
 
 
 im_SOURCES = 		$(testable_SOURCES) \
 			im.cpp
 
-test_PROGRAMS =		test_Board
+test_PROGRAMS =		$(basename $(wildcard test_*.cpp))
 
 testable_OBJECTS =	$(addsuffix .o,$(basename $(testable_SOURCES)))
 im_OBJECTS =		$(addsuffix .o,$(basename $(im_SOURCES)))
 
 all: im test
+
+wrapgl: wrapgl.o
+	$(CXX) $^ -o $@ $(LDFLAGS)
+
+real_glwrap.hpp: wrapgl opengl_apis.txt
+	./wrapgl
 
 test: $(test_PROGRAMS)
 	for p in $(test_PROGRAMS); do \
