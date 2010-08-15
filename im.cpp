@@ -39,7 +39,7 @@ GLuint RealGL::load_texture(string const& name) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glTexImage2D(GL_TEXTURE_2D, 0, 3, s->w, s->h, 0, 
-                 GL_BGR, GL_UNSIGNED_BYTE, s->pixels);
+                 GL_RGB, GL_UNSIGNED_BYTE, s->pixels);
 
     SDL_FreeSurface(s);
     return result;
@@ -125,16 +125,6 @@ void event_loop() {
             return;
 
         case SDL_USEREVENT:
-            /*
-            for (int i = 0; i < Board::ELEVATOR_COUNT; ++i) {
-                g_board.elevator(i).bottom += g_board.elevator(i).y_velocity;
-                if (g_board.elevator(i).y_velocity>0 && g_board.elevator(i).bottom > 480*11 - 20)
-                    g_board.elevator(i).y_velocity = -g_board.elevator(i).y_velocity;
-                else if (g_board.elevator(i).y_velocity<0 && g_board.elevator(i).bottom < 200)
-                    g_board.elevator(i).y_velocity = -g_board.elevator(i).y_velocity;
-            }
-            */
-
             {
                 glMatrixMode(GL_PROJECTION);
                 glLoadIdentity();
@@ -142,7 +132,7 @@ void event_loop() {
                 //int top = max(0,g_board.elevator(0).bottom - 180/2 - 480/2);
 
                 //glOrtho(0.0f + 640, 640 + 640, 480 + top, 0.0f + top, -1.0f, 1.0f);
-                glOrtho(0.0f, 640*3, 480*3, 0.0f, -1.0f, 1.0f);
+                glOrtho(0.0f + 640, 640 + 640, 480, 0.0f, -1.0f, 1.0f);
             }
 
             render(g_board);
