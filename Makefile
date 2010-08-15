@@ -36,7 +36,7 @@ all: im test
 wrapgl: wrapgl.o
 	$(CXX) $^ -o $@ $(LDFLAGS)
 
-real_glwrap.hpp: wrapgl opengl_apis.txt
+real_glwrap.hpp mock_glwrap.hpp: wrapgl opengl_apis.txt
 	./wrapgl
 
 test: $(test_PROGRAMS)
@@ -58,10 +58,8 @@ test_%: test_%.o
 .PHONY: clean test all
 
 clean:
-	rm -f *.o $(addsuffix $(EXESUFFIX),$(test_PROGRAMS)) im$(EXESUFFIX)
+	rm -f *.o $(addsuffix $(EXESUFFIX),$(test_PROGRAMS) im wrapgl) *_glwrap.hpp
 
 include .depends
 .depends: $(wildcard *.cpp)
-	g++ -MM $(CPPFLAGS) $^ > .depends
-
-
+	g++ -MG -MM $(CPPFLAGS) $^ > .depends

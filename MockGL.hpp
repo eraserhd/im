@@ -15,7 +15,6 @@ struct MockGL {
 
     static std::vector<boost::shared_ptr<C_base> > calls;
 #include "mock_glwrap.hpp"
-#define BEGIN {
 
     // Assertions for testing
     
