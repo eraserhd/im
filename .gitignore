@@ -1,7 +1,9 @@
 im
 test_Board
+test_objects
 *.o
 .depends
 *.exe
 mock_glwrap.hpp
 real_glwrap.hpp
+wrapgl
