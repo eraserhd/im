@@ -1,3 +1,4 @@
+#include <utility>
 #include "objects.hpp"
 using namespace std;
 using namespace im;
@@ -45,12 +46,13 @@ Elevator::Elevator(Rect const& bounds, GLuint texture)
 // Guy
 
 Guy::Guy()
+    : state_(LEFT,STANDING,0)
 {
 }
 
 Guy::Guy(Point const& position)
     : position_(position)
-    , state_(STANDING_LEFT)
+    , state_(LEFT,STANDING,0)
 {
 }
 

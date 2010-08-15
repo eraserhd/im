@@ -7,6 +7,7 @@
 #include <vector>
 #include <boost/tuple/tuple.hpp>
 #include <iostream>
+#include <utility>
 #include "MockGL.hpp"
 using namespace std;
 using namespace im;
@@ -39,11 +40,11 @@ Guy make_guy() {
 
 BOOST_AUTO_TEST_CASE(guy_starts_in_standing_left_state) {
     Guy g = make_guy();
-    BOOST_CHECK(g.state() == Guy::STANDING_LEFT);
+    BOOST_CHECK(g.state() == Guy::State(Guy::LEFT,Guy::STANDING,0));
 }
 
 BOOST_AUTO_TEST_CASE(guy_standing_left_tick_does_not_change_state) {
     Guy g = make_guy();
     Guy::Tick::tick(g);
-    BOOST_CHECK(g.state() == Guy::STANDING_LEFT);
+    BOOST_CHECK(g.state() == Guy::State(Guy::LEFT,Guy::STANDING,0));
 }

@@ -1,13 +1,18 @@
 #ifndef Generate_hpp_INCLUDED
 #define Generate_hpp_INCLUDED
 
+#include <map>
 #include <sstream>
+#include <string>
+#include <utility>
 #include <vector>
 #include "objects.hpp"
+#include "Board.hpp"
+#include "Room.hpp"
 
 namespace im {
 
-template<typename ObjectLoader>
+template<typename GL>
 class Generate {
 private:
     std::vector<Room> load_rooms() const {
@@ -37,10 +42,6 @@ private:
     }
 
 public:
-    Generate(ObjectLoader loader = ObjectLoader())
-        : loader(loader)
-    {}
-
     Board operator () () const {
         const int COLUMNS = 6;
         std::vector<std::vector<Room> > rooms(COLUMNS);
@@ -104,14 +105,14 @@ public:
         }
 
         // elevator shafts
-        GLuint es_texture = loader.load_texture("elevator-2");
+        GLuint es_texture = GL::load_texture("elevator-2");
         for (int j = 0; j < Board::ELEVATOR_COUNT; ++j) {
             int center = 320+640 + j*2*640;
             b.push_back(ElevatorShaft(Rect(Point(center-40,0), Size(80,height)), es_texture));
         }
 
         // elevators
-        GLuint e_texture = loader.load_texture("elevator-0");
+        GLuint e_texture = GL::load_texture("elevator-0");
         for (int i = 0; i < 5; ++i) {
             int center = 320+640 + i*2*640;
 
@@ -126,11 +127,36 @@ private:
     GLuint load_elevator_bg(int n) const {
         std::ostringstream o;
         o << "elevator-background-"<<n;
-        return loader.load_texture(o.str());
+        return GL::load_texture(o.str());
     }
-
-    ObjectLoader loader;
 };
+
+template<typename GL>
+void load_series(std::map<Guy::State, GLuint>& r, Guy::Facing facing, Guy::StateKind kind, int count, std::string const& base) {
+    for (int i = 0; i < count; ++i) {
+        std::ostringstream o;
+        o << base << '-' << i;
+        r[Guy::State(facing,kind,i)] = GL::load_texture(o.str());
+    }
+}
+
+template<typename GL>
+std::map<Guy::State, GLuint> load_guy_sprite() {
+    std::map<Guy::State, GLuint> r;
+
+    r[Guy::State(Guy::LEFT,Guy::STANDING,0)] = GL::load_texture("standing-left-0");
+    r[Guy::State(Guy::RIGHT,Guy::STANDING,0)] = GL::load_texture("standing-right-0");
+
+    r[Guy::State(Guy::LEFT,Guy::SEARCHING,0)] = GL::load_texture("searching-0");
+    r[Guy::State(Guy::RIGHT,Guy::SEARCHING,0)] = GL::load_texture("searching-0");
+    
+    load_series<GL>(r, Guy::LEFT, Guy::RUNNING, 14, "running-left");
+    load_series<GL>(r, Guy::RIGHT, Guy::RUNNING, 14, "running-right");
+    load_series<GL>(r, Guy::LEFT, Guy::FLIPPING, 12, "flipping-left");
+    load_series<GL>(r, Guy::RIGHT, Guy::FLIPPING, 12, "flipping-right");
+
+    return r;
+}
 
 }
 

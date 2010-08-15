@@ -2,6 +2,7 @@
 #define objects_hpp_INCLUDED
 
 #include <SDL_opengl.h>
+#include <utility>
 #include "geometry.hpp"
 
 namespace im {
@@ -95,8 +96,39 @@ public:
     Guy();
     Guy(Point const& position);
 
-    enum State {
-        STANDING_LEFT
+    enum Facing {
+        LEFT,
+        RIGHT
+    };
+
+    enum StateKind {
+        STANDING,
+        FLIPPING,
+        RUNNING,
+        SEARCHING
+    };
+
+    struct State {
+        inline State(Facing facing, StateKind kind, int index)
+            : facing(facing)
+            , kind(kind)
+            , index(index)
+        {}
+
+        Facing facing;
+        StateKind kind;
+        int index;
+
+        inline bool operator == (const State& rhs) const {
+            return facing == rhs.facing && kind == rhs.kind && index == rhs.index;
+        }
+        inline bool operator < (const State& rhs) const {
+            if (facing < rhs.facing) return true;
+            if (facing > rhs.facing) return false;
+            if (kind < rhs.kind) return true;
+            if (kind > rhs.kind) return false;
+            return index < rhs.index;
+        }
     };
 
     inline Point const& position() const {
