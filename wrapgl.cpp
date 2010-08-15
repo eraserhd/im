@@ -25,9 +25,13 @@ std::string trim(std::string l) {
     return l;
 }
 
+bool my_iscsym(char c) {
+    return isalnum(c) || c == '_';
+}
+
 std::pair<std::string, std::string> break_type_and_name(std::string const& s) {
     string::size_type beginning_of_id = s.size();
-    while (beginning_of_id > 0 && iscsym(s[beginning_of_id-1]))
+    while (beginning_of_id > 0 && my_iscsym(s[beginning_of_id-1]))
         --beginning_of_id;
 
     const std::string name = s.substr(beginning_of_id);
