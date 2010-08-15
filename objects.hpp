@@ -2,8 +2,11 @@
 #define objects_hpp_INCLUDED
 
 #include <SDL_opengl.h>
+#include <cassert>
+#include <map>
 #include <utility>
 #include "geometry.hpp"
+
 
 namespace im {
 
@@ -93,9 +96,6 @@ private:
 
 class Guy {
 public:
-    Guy();
-    Guy(Point const& position);
-
     enum Facing {
         LEFT,
         RIGHT
@@ -109,44 +109,61 @@ public:
     };
 
     struct State {
-        inline State(Facing facing, StateKind kind, int index)
-            : facing(facing)
-            , kind(kind)
-            , index(index)
-        {}
+        State(Facing facing, StateKind kind, int index);
 
+        bool operator == (const State& rhs) const;
+        bool operator < (const State& rhs) const;
+
+    private:
         Facing facing;
         StateKind kind;
         int index;
-
-        inline bool operator == (const State& rhs) const {
-            return facing == rhs.facing && kind == rhs.kind && index == rhs.index;
-        }
-        inline bool operator < (const State& rhs) const {
-            if (facing < rhs.facing) return true;
-            if (facing > rhs.facing) return false;
-            if (kind < rhs.kind) return true;
-            if (kind > rhs.kind) return false;
-            return index < rhs.index;
-        }
     };
+
+    Guy();
+    Guy(Point const& position, std::map<State, GLuint> textures);
+
 
     inline Point const& position() const {
         return position_;
     }
-    inline State state() const {
+    inline State const& state() const {
         return state_;
     }
 
     struct Tick {
-        static void tick(Guy& guy);
+        static void apply(Guy& guy);
     };
+    struct Render {
+        template<typename GL>
+        static void apply(Guy const& g) {
+            Rect r(g.position_, Size(48,84));
+
+            std::map<State, GLuint>::const_iterator it = g.textures_.find(g.state());
+            assert(it != g.textures_.end());
+
+            GL::glEnable(GL_ALPHA_TEST);
+            GL::glAlphaFunc(GL_GREATER, 0.0);
+            GL::glBindTexture(GL_TEXTURE_2D, it->second);
+            GL::glBegin(GL_QUADS);
+                GL::glTexCoord2f(0, 0); GL::glVertex3f(r.left(), r.top(), 0);
+                GL::glTexCoord2f(1, 0); GL::glVertex3f(r.right(), r.top(), 0);
+                GL::glTexCoord2f(1, 1); GL::glVertex3f(r.right(), r.bottom(), 0);
+                GL::glTexCoord2f(0, 1); GL::glVertex3f(r.left(), r.bottom(), 0);
+            GL::glEnd();
+            GL::glDisable(GL_ALPHA_TEST);
+        }
+    };
+
+    static int frame_count(StateKind kind);
+
+protected:
+    State state_;
 
 private:
     Point position_;
-    State state_;
+    std::map<State, GLuint> textures_;
 };
-
 
 }
 

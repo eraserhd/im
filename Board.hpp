@@ -35,7 +35,8 @@ private:
     typedef boost::mpl::vector<
         Background,
         ElevatorShaft,
-        Elevator
+        Elevator,
+        Guy
         > object_types;
 
 public:

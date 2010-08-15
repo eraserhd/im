@@ -1,5 +1,8 @@
 void glBegin(int what);
-void glEnd();
 void glBindTexture(int what, GLuint texture);
+void glAlphaFunc(GLenum func, GLclampf ref);
+void glEnable(GLenum what);
+void glEnd();
+void glDisable(GLenum what);
 void glTexCoord2f(float x, float y);
 void glVertex3f(float x, float y, float z);

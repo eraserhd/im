@@ -13,6 +13,9 @@
 namespace im {
 
 template<typename GL>
+std::map<Guy::State, GLuint> load_guy_sprite();
+
+template<typename GL>
 class Generate {
 private:
     std::vector<Room> load_rooms() const {
@@ -119,7 +122,8 @@ public:
             b.push_back(Elevator(Rect(Point(center-40,10), Size(80,180)), e_texture));
         }
 
-
+        // guy
+        b.push_back(Guy(Point(320+640-24, 58), load_guy_sprite<GL>()));
         return b;
     }
 
@@ -132,7 +136,8 @@ private:
 };
 
 template<typename GL>
-void load_series(std::map<Guy::State, GLuint>& r, Guy::Facing facing, Guy::StateKind kind, int count, std::string const& base) {
+void load_series(std::map<Guy::State, GLuint>& r, Guy::Facing facing, Guy::StateKind kind, std::string const& base) {
+    const int count = Guy::frame_count(kind);
     for (int i = 0; i < count; ++i) {
         std::ostringstream o;
         o << base << '-' << i;
@@ -143,18 +148,14 @@ void load_series(std::map<Guy::State, GLuint>& r, Guy::Facing facing, Guy::State
 template<typename GL>
 std::map<Guy::State, GLuint> load_guy_sprite() {
     std::map<Guy::State, GLuint> r;
-
-    r[Guy::State(Guy::LEFT,Guy::STANDING,0)] = GL::load_texture("standing-left-0");
-    r[Guy::State(Guy::RIGHT,Guy::STANDING,0)] = GL::load_texture("standing-right-0");
-
-    r[Guy::State(Guy::LEFT,Guy::SEARCHING,0)] = GL::load_texture("searching-0");
-    r[Guy::State(Guy::RIGHT,Guy::SEARCHING,0)] = GL::load_texture("searching-0");
-    
-    load_series<GL>(r, Guy::LEFT, Guy::RUNNING, 14, "running-left");
-    load_series<GL>(r, Guy::RIGHT, Guy::RUNNING, 14, "running-right");
-    load_series<GL>(r, Guy::LEFT, Guy::FLIPPING, 12, "flipping-left");
-    load_series<GL>(r, Guy::RIGHT, Guy::FLIPPING, 12, "flipping-right");
-
+    load_series<GL>(r, Guy::LEFT, Guy::STANDING, "standing-left");
+    load_series<GL>(r, Guy::RIGHT, Guy::STANDING, "standing-right");
+    load_series<GL>(r, Guy::LEFT, Guy::SEARCHING, "searching");
+    load_series<GL>(r, Guy::RIGHT, Guy::SEARCHING, "searching");
+    load_series<GL>(r, Guy::LEFT, Guy::RUNNING, "running-left");
+    load_series<GL>(r, Guy::RIGHT, Guy::RUNNING, "running-right");
+    load_series<GL>(r, Guy::LEFT, Guy::FLIPPING, "flipping-left");
+    load_series<GL>(r, Guy::RIGHT, Guy::FLIPPING, "flipping-right");
     return r;
 }
 

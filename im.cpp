@@ -38,8 +38,16 @@ GLuint RealGL::load_texture(string const& name) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, s->w, s->h, 0, 
-                 GL_RGB, GL_UNSIGNED_BYTE, s->pixels);
+    // Our four byte PNGs have alpha
+    GLint internal_format = 3;
+    GLenum format = GL_RGB;
+    if (s->format->BytesPerPixel == 4) {
+        format = GL_RGBA; 
+        internal_format = 4;
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, internal_format, s->w, s->h, 0, 
+                 format, GL_UNSIGNED_BYTE, s->pixels);
 
     SDL_FreeSurface(s);
     return result;
