@@ -47,12 +47,6 @@ BOOST_AUTO_TEST_CASE(guy_starts_in_standing_left_state) {
     BOOST_CHECK(g.state() == Guy::State(Guy::LEFT,Guy::STANDING,0));
 }
 
-BOOST_AUTO_TEST_CASE(guy_standing_left_tick_does_not_change_state) {
-    Guy g = make_guy();
-    Guy::Tick::apply(g);
-    BOOST_CHECK(g.state() == Guy::State(Guy::LEFT,Guy::STANDING,0));
-}
-
 vector<Guy::State> all_guy_states() {
     vector<Guy::State> r;
     for (int d = (int) Guy::LEFT; d <= (int) Guy::RIGHT; ++d)
@@ -96,4 +90,13 @@ BOOST_AUTO_TEST_CASE(guy_renders_with_alpha_clamping) {
     }
     BOOST_CHECK(alpha_test);
     BOOST_CHECK(alpha_func);
+}
+
+BOOST_AUTO_TEST_CASE(guy_standing_left_tick_does_not_change_state) {
+    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::STANDING, 0) == Guy::State(Guy::LEFT, Guy::STANDING, 0).next());
+}
+
+BOOST_AUTO_TEST_CASE(tick_cycles_state_index) {
+    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 1) == Guy::State(Guy::LEFT, Guy::RUNNING, 0).next());
+    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 0) == Guy::State(Guy::LEFT, Guy::RUNNING, Guy::frame_count(Guy::RUNNING)-1).next());
 }

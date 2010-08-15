@@ -143,6 +143,7 @@ void event_loop() {
                 glOrtho(0.0f + 640, 640 + 640, 480, 0.0f, -1.0f, 1.0f);
             }
 
+            g_board.tick();
             render(g_board);
             break;
         }
@@ -179,7 +180,7 @@ int main(int argc, char* argv[]) {
 
     g_board = Generate<RealGL>() ();
 
-    SDL_AddTimer(30, timer, NULL);
+    SDL_AddTimer(60, timer, NULL);
     event_loop();
 
     return 0;

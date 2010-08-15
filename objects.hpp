@@ -10,7 +10,11 @@
 
 namespace im {
 
-class Background {
+struct Object {
+    virtual ~Object();
+};
+
+class Background : public Object {
 public:
     Background();
     Background(Rect const& bounds, GLuint texture);
@@ -38,7 +42,7 @@ private:
     Rect bounds_;
 };
 
-class ElevatorShaft {
+class ElevatorShaft : public Object {
 public:
     ElevatorShaft();
     ElevatorShaft(Rect const& bounds, GLuint texture);
@@ -66,7 +70,7 @@ private:
     Rect bounds_;
 };
 
-class Elevator {
+class Elevator : public Object {
 public:
     Elevator();
     Elevator(Rect const& bounds, GLuint texture);
@@ -94,7 +98,7 @@ private:
     Rect bounds_;
 };
 
-class Guy {
+class Guy : public Object {
 public:
     enum Facing {
         LEFT,
@@ -113,6 +117,8 @@ public:
 
         bool operator == (const State& rhs) const;
         bool operator < (const State& rhs) const;
+
+        State next() const;
 
     private:
         Facing facing;

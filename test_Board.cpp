@@ -11,11 +11,6 @@
 using namespace std;
 using namespace im;
 
-BOOST_AUTO_TEST_CASE(can_add_items_of_correct_types) {
-    Board b;
-    b.push_back(Background(Rect(),0));
-}
-
 struct Visitor {
     int* count;
     Visitor(int* count) : count(count) {}

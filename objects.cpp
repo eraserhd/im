@@ -5,6 +5,13 @@ using namespace std;
 using namespace im;
 
 //////////////////////////////////////////////////////////////////////////////
+// Object
+
+Object::~Object()
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
 // Background
 
 Background::Background()
@@ -53,7 +60,7 @@ Guy::Guy()
 
 Guy::Guy(Point const& position, std::map<Guy::State, GLuint> textures)
     : position_(position)
-    , state_(LEFT,STANDING,0)
+    , state_(LEFT,RUNNING,0)
     , textures_(textures)
 {
 }
@@ -79,9 +86,14 @@ bool Guy::State::operator < (const Guy::State& rhs) const {
     return index < rhs.index;
 }
 
+Guy::State Guy::State::next() const {
+    return Guy::State(facing, kind, (index + 1) % frame_count(kind));
+}
+
 // Guy::Tick
 
 void Guy::Tick::apply(Guy& guy) {
+    guy.state_ = guy.state_.next();
 }
 
 int Guy::frame_count(StateKind k) {
