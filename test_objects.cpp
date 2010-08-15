@@ -1,3 +1,4 @@
+#include <boost/foreach.hpp>
 #define BOOST_TEST_MODULE ObjectsTest`
 #include <boost/test/unit_test.hpp>
 
@@ -9,8 +10,24 @@
 using namespace std;
 using namespace im;
 
-BOOST_AUTO_TEST_CASE(background_) {
-    Background bg(Rect(Point(10,10),Size(100,400)), 42);
+template<typename T>
+void check_renders_with_correct_texture() {
+    T bg(Rect(Point(10,10),Size(100,400)), 42);
     MockGL::calls.clear();
-    Background::Render::apply<MockGL>(bg);
+
+    typedef typename T::Render Render;
+    Render::template apply<MockGL>(bg);
+    BOOST_CHECK(MockGL::drew_quad_texture(42));
+}
+
+BOOST_AUTO_TEST_CASE(backgrounds_render_with_correct_textures) {
+    check_renders_with_correct_texture<Background>();
+}
+
+BOOST_AUTO_TEST_CASE(elevator_shaft_renders_with_correct_texture) {
+    check_renders_with_correct_texture<ElevatorShaft>();
+}
+
+BOOST_AUTO_TEST_CASE(elevator_renders_with_correct_texture) {
+    check_renders_with_correct_texture<Elevator>();
 }
