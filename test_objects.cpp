@@ -6,6 +6,7 @@
 #include <set>
 #include <vector>
 #include <boost/tuple/tuple.hpp>
+#include <iostream>
 #include "MockGL.hpp"
 using namespace std;
 using namespace im;
@@ -30,4 +31,19 @@ BOOST_AUTO_TEST_CASE(elevator_shaft_renders_with_correct_texture) {
 
 BOOST_AUTO_TEST_CASE(elevator_renders_with_correct_texture) {
     check_renders_with_correct_texture<Elevator>();
+}
+
+Guy make_guy() {
+    return Guy(Point(10,10));
+}
+
+BOOST_AUTO_TEST_CASE(guy_starts_in_standing_left_state) {
+    Guy g = make_guy();
+    BOOST_CHECK(g.state() == Guy::STANDING_LEFT);
+}
+
+BOOST_AUTO_TEST_CASE(guy_standing_left_tick_does_not_change_state) {
+    Guy g = make_guy();
+    Guy::Tick::tick(g);
+    BOOST_CHECK(g.state() == Guy::STANDING_LEFT);
 }

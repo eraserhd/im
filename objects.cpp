@@ -41,3 +41,20 @@ Elevator::Elevator(Rect const& bounds, GLuint texture)
 {
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// Guy
+
+Guy::Guy()
+{
+}
+
+Guy::Guy(Point const& position)
+    : position_(position)
+    , state_(STANDING_LEFT)
+{
+}
+
+void Guy::Tick::tick(Guy& guy)
+{
+}
+

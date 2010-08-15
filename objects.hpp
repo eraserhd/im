@@ -90,6 +90,31 @@ private:
     Rect bounds_;
 };
 
+class Guy {
+public:
+    Guy();
+    Guy(Point const& position);
+
+    enum State {
+        STANDING_LEFT
+    };
+
+    inline Point const& position() const {
+        return position_;
+    }
+    inline State state() const {
+        return state_;
+    }
+
+    struct Tick {
+        static void tick(Guy& guy);
+    };
+
+private:
+    Point position_;
+    State state_;
+};
+
 
 }
 
