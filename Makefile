@@ -5,14 +5,14 @@ ifeq ($(UNAME),windows32)
 SDL_INCLUDES = /c/MingW/include/SDL
 
 CXXFLAGS = -g -I$(SDL_INCLUDES)
-LDFLAGS = -lopengl32 -lglut32
+LDFLAGS = -lopengl32 -lglut32 -lSDL_image
 
-im: LDFLAGS=-lmingw32 -lSDLmain -lSDL -lopengl32 -lglut32
+im: LDFLAGS=-lmingw32 -lSDLmain -lSDL -lSDL_image -lopengl32 -lglut32
 
 EXESUFFIX = .exe
 else
-CXXFLAGS = $(shell sdl-config --cflags) -g
-LDFLAGS = $(shell sdl-config --libs) -g -lGL -lGLU
+CXXFLAGS = $(shell sdl-config --cflags) $(shell pkg-config SDL_image --cflags) -g
+LDFLAGS = $(shell sdl-config --libs) $(shell pkg-config SDL_image --libs) -g -lGL -lGLU
 
 EXESUFFIX =
 endif

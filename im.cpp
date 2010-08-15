@@ -1,5 +1,6 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
+#include <SDL_image.h>
 #include <algorithm>
 #include <cassert>
 #include <cstdio>
@@ -27,7 +28,7 @@ void die(string const& msg) {
 }
 
 GLuint RealGL::load_texture(string const& name) {
-    SDL_Surface *s = SDL_LoadBMP(("data/" + name).c_str());
+    SDL_Surface *s = IMG_Load(("data/" + name + ".png").c_str());
     if (NULL == s)
         die("Could not load " + name);
 
@@ -163,6 +164,9 @@ Uint32 timer(Uint32 interval, void* p) {
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO) != 0)
         die("SDL_Init failed");
+
+    if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG)
+        die("IMG_Init failed");
 
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     if ((screen = SDL_SetVideoMode(640,480,16, SDL_OPENGL)) == NULL)

@@ -104,14 +104,14 @@ public:
         }
 
         // elevator shafts
-        GLuint es_texture = loader.load_texture("elevator-2.bmp");
+        GLuint es_texture = loader.load_texture("elevator-2");
         for (int j = 0; j < Board::ELEVATOR_COUNT; ++j) {
             int center = 320+640 + j*2*640;
             b.push_back(ElevatorShaft(Rect(Point(center-40,0), Size(80,height)), es_texture));
         }
 
         // elevators
-        GLuint e_texture = loader.load_texture("elevator-0.bmp");
+        GLuint e_texture = loader.load_texture("elevator-0");
         for (int i = 0; i < 5; ++i) {
             int center = 320+640 + i*2*640;
 
@@ -125,7 +125,7 @@ public:
 private:
     GLuint load_elevator_bg(int n) const {
         std::ostringstream o;
-        o << "elevator-background-"<<n<<".bmp";
+        o << "elevator-background-"<<n;
         return loader.load_texture(o.str());
     }
 
