@@ -1,5 +1,8 @@
+#include <SDL_keysym.h>
+#include <boost/foreach.hpp>
 #include <map>
 #include <utility>
+#include <vector>
 #include "objects.hpp"
 using namespace std;
 using namespace im;
@@ -60,7 +63,7 @@ Guy::Guy()
 
 Guy::Guy(Point const& position, std::map<Guy::State, GLuint> textures)
     : position_(position)
-    , state_(LEFT,RUNNING,0)
+    , state_(LEFT,STANDING,0)
     , textures_(textures)
 {
 }
@@ -86,14 +89,43 @@ bool Guy::State::operator < (const Guy::State& rhs) const {
     return index < rhs.index;
 }
 
-Guy::State Guy::State::next() const {
-    return Guy::State(facing, kind, (index + 1) % frame_count(kind));
+Guy::State Guy::State::next(std::vector<TickKey>  const& keys) const {
+    Guy::State ns(*this);
+
+    bool changed = false;
+    BOOST_FOREACH(TickKey const& k, keys) {
+        if (k.down && (k.sym == SDLK_LEFT || k.sym == SDLK_RIGHT) && (kind == STANDING || kind == RUNNING)) {
+            changed = true;
+            ns.facing = (k.sym == SDLK_LEFT) ? LEFT : RIGHT;
+            ns.kind = RUNNING;
+            ns.index = 0;
+            continue;
+        }
+        if (!k.down && ((k.sym == SDLK_LEFT && facing == LEFT) || (k.sym == SDLK_RIGHT && facing == RIGHT)) && kind == RUNNING) {
+            changed = true;
+            ns.facing = (k.sym == SDLK_LEFT) ? LEFT : RIGHT;
+            ns.kind = STANDING;
+            ns.index = 0;
+            continue;
+        }
+        if (k.down && k.sym == SDLK_SPACE && (kind == STANDING || kind == RUNNING)) {
+            changed = true;
+            ns.kind = FLIPPING;
+            ns.index = 0;
+            continue;
+        }
+    }
+
+    if (!changed)
+        ns.index = (ns.index + 1) % frame_count(kind);
+
+    return ns;
 }
 
 // Guy::Tick
 
-void Guy::Tick::apply(Guy& guy) {
-    guy.state_ = guy.state_.next();
+void Guy::Tick::apply(Guy& guy, std::vector<TickKey> const& keys) {
+    guy.state_ = guy.state_.next(keys);
 }
 
 int Guy::frame_count(StateKind k) {

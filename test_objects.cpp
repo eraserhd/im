@@ -1,11 +1,12 @@
-#include <algorithm>
-#include <boost/foreach.hpp>
 #define BOOST_TEST_MODULE ObjectsTest`
 #include <boost/test/unit_test.hpp>
 
+#include <SDL_keysym.h>
+#include <algorithm>
 #include "objects.hpp"
 #include <set>
 #include <vector>
+#include <boost/foreach.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <iostream>
 #include <map>
@@ -93,10 +94,88 @@ BOOST_AUTO_TEST_CASE(guy_renders_with_alpha_clamping) {
 }
 
 BOOST_AUTO_TEST_CASE(guy_standing_left_tick_does_not_change_state) {
-    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::STANDING, 0) == Guy::State(Guy::LEFT, Guy::STANDING, 0).next());
+    std::vector<TickKey> keys;
+    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::STANDING, 0) == Guy::State(Guy::LEFT, Guy::STANDING, 0).next(keys));
 }
 
 BOOST_AUTO_TEST_CASE(tick_cycles_state_index) {
-    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 1) == Guy::State(Guy::LEFT, Guy::RUNNING, 0).next());
-    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 0) == Guy::State(Guy::LEFT, Guy::RUNNING, Guy::frame_count(Guy::RUNNING)-1).next());
+    std::vector<TickKey> keys;
+    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 1) == Guy::State(Guy::LEFT, Guy::RUNNING, 0).next(keys));
+    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 0) == Guy::State(Guy::LEFT, Guy::RUNNING, Guy::frame_count(Guy::RUNNING)-1).next(keys));
+}
+
+BOOST_AUTO_TEST_CASE(kb_left_down_changes_from_standing_to_running_left) {
+    Guy::State s(Guy::LEFT,Guy::STANDING,0);
+
+    std::vector<TickKey> keys;
+    keys.push_back(TickKey(true, SDLK_LEFT));
+    Guy::State n = s.next(keys);
+
+    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 0) == n);
+}
+
+BOOST_AUTO_TEST_CASE(kb_left_up_changes_from_running_to_standing_left) {
+    Guy::State s(Guy::LEFT,Guy::RUNNING,0);
+
+    std::vector<TickKey> keys;
+    keys.push_back(TickKey(false, SDLK_LEFT));
+    Guy::State n = s.next(keys);
+
+    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::STANDING, 0) == n);
+}
+
+BOOST_AUTO_TEST_CASE(kb_right_down_while_running_left_changes_direction) {
+    Guy::State s(Guy::LEFT,Guy::RUNNING,0);
+
+    std::vector<TickKey> keys;
+    keys.push_back(TickKey(true, SDLK_RIGHT));
+    Guy::State n = s.next(keys);
+
+    BOOST_CHECK(Guy::State(Guy::RIGHT, Guy::RUNNING, 0) == n);
+}
+
+BOOST_AUTO_TEST_CASE(kb_left_down_while_running_right_changes_direction) {
+    Guy::State s(Guy::RIGHT,Guy::RUNNING,0);
+
+    std::vector<TickKey> keys;
+    keys.push_back(TickKey(true, SDLK_LEFT));
+    Guy::State n = s.next(keys);
+
+    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 0) == n);
+}
+
+BOOST_AUTO_TEST_CASE(kb_left_up_while_running_right_does_nothing) {
+    Guy::State s(Guy::RIGHT,Guy::RUNNING,6);
+
+    std::vector<TickKey> keys;
+    keys.push_back(TickKey(false, SDLK_LEFT));
+    Guy::State n = s.next(keys);
+
+    BOOST_CHECK(Guy::State(Guy::RIGHT, Guy::RUNNING, 7) == n);
+}
+
+BOOST_AUTO_TEST_CASE(kb_right_up_while_running_left_does_nothing) {
+    Guy::State s(Guy::LEFT,Guy::RUNNING,6);
+
+    std::vector<TickKey> keys;
+    keys.push_back(TickKey(false, SDLK_RIGHT));
+    Guy::State n = s.next(keys);
+
+    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 7) == n);
+}
+
+BOOST_AUTO_TEST_CASE(kb_space_transitions_standing_and_running_to_flipping) {
+    const Guy::Facing D[] = {Guy::LEFT,Guy::RIGHT};
+    for (int d = 0; d < 2; ++d) {
+        const Guy::StateKind K[] = {Guy::STANDING,Guy::RUNNING};
+        for (int k = 0; k < 2; ++k) {
+            Guy::State s(D[d], K[k], 5 % Guy::frame_count(K[k]));
+
+            std::vector<TickKey> keys;
+            keys.push_back(TickKey(true, SDLK_SPACE));
+            Guy::State n = s.next(keys);
+
+            BOOST_CHECK(Guy::State(D[d], Guy::FLIPPING, 0) == n);
+        }
+    }
 }

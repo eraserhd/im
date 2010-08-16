@@ -5,6 +5,7 @@
 #include <cassert>
 #include <map>
 #include <utility>
+#include <vector>
 #include "geometry.hpp"
 
 
@@ -12,6 +13,16 @@ namespace im {
 
 struct Object {
     virtual ~Object();
+};
+
+struct TickKey {
+    inline TickKey(bool down, int sym)
+        : down(down)
+        , sym(sym)
+    {}
+
+    bool down;
+    int sym;
 };
 
 class Background : public Object {
@@ -118,7 +129,7 @@ public:
         bool operator == (const State& rhs) const;
         bool operator < (const State& rhs) const;
 
-        State next() const;
+        State next(std::vector<TickKey> const& keys) const;
 
     private:
         Facing facing;
@@ -138,7 +149,7 @@ public:
     }
 
     struct Tick {
-        static void apply(Guy& guy);
+        static void apply(Guy& guy, std::vector<TickKey> const& keys);
     };
     struct Render {
         template<typename GL>

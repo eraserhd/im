@@ -12,6 +12,8 @@
 #include "Board.hpp"
 #include "Generate.hpp"
 #include <boost/foreach.hpp>
+#include <utility>
+#include <vector>
 #include "RealGL.hpp"
 using namespace std;
 using namespace im;
@@ -55,95 +57,36 @@ GLuint RealGL::load_texture(string const& name) {
 
 void render(Board const& b) {
     glClear(GL_COLOR_BUFFER_BIT);
-
     b.render<RealGL>();
-
-    /*
-    // exits
-    for (int j = 0; j < b.rooms.size(); ++j) {
-        for (int i = 0; i < b.rooms[j].size(); ++i) {
-            Room const& r = b.rooms[j][i];
-
-            glBindTexture(GL_TEXTURE_2D, right_hallway);
-            BOOST_FOREACH(int o, r.left_exits) {
-                int ecenter = 320+640 + j*2*640;
-                int left = ecenter+40;
-                int right = left+326;
-                int top = o + 480*i;
-                int bottom = top + Board::CORRIDOR_HEIGHT;
-
-                glBegin(GL_QUADS);
-                    glTexCoord2f(0,0); glVertex3f(left, top, 0);
-                    glTexCoord2f(1,0); glVertex3f(right, top, 0);
-                    glTexCoord2f(1,1); glVertex3f(right, bottom, 0);
-                    glTexCoord2f(0,1); glVertex3f(left, bottom, 0);
-                glEnd();
-            }
-
-            glBindTexture(GL_TEXTURE_2D, left_hallway);
-            BOOST_FOREACH(int o, r.right_exits) {
-                int ecenter = 320+640 + (j-1)*2*640;
-                int right = ecenter-40;
-                int left = right-324;
-
-                int top = o + 480*i;
-                int bottom = top + Board::CORRIDOR_HEIGHT;
-
-                glBegin(GL_QUADS);
-                    glTexCoord2f(0,0); glVertex3f(left, top, 0);
-                    glTexCoord2f(1,0); glVertex3f(right, top, 0);
-                    glTexCoord2f(1,1); glVertex3f(right, bottom, 0);
-                    glTexCoord2f(0,1); glVertex3f(left, bottom, 0);
-                glEnd();
-            }
-        }
-    }
-
-    // rooms
-    //glColor3f(0,0,0);
-    for (int j = 0; j < b.rooms.size(); ++j) {
-        for (int i = 0; i < b.rooms[j].size(); ++i) {
-            / *
-            glBegin(GL_QUADS);
-                glVertex3f(left, top, 0);
-                glVertex3f(right, top, 0);
-                glVertex3f(right, bottom, 0);
-                glVertex3f(left, bottom, 0);
-            glEnd();
-        }
-    }
-     */
-
-
     SDL_GL_SwapBuffers();
 }
 
 void event_loop() {
     SDL_Event event;
+    std::vector<TickKey> keys;
     while (SDL_WaitEvent(&event)) {
         switch (event.type) {
         case SDL_KEYDOWN:
-            switch (event.key.keysym.sym) {
-            case 'q':
+            if (SDLK_q == event.key.keysym.sym)
                 return;
-            }
+            keys.push_back(TickKey(true, event.key.keysym.sym));
+            break;
+
+        case SDL_KEYUP:
+            keys.push_back(TickKey(false, event.key.keysym.sym));
             break;
 
         case SDL_QUIT:
             return;
 
         case SDL_USEREVENT:
-            {
-                glMatrixMode(GL_PROJECTION);
-                glLoadIdentity();
-                
-                //int top = max(0,g_board.elevator(0).bottom - 180/2 - 480/2);
+            g_board.tick(keys);
+            keys.clear();
 
-                //glOrtho(0.0f + 640, 640 + 640, 480 + top, 0.0f + top, -1.0f, 1.0f);
-                glOrtho(0.0f + 640, 640 + 640, 480, 0.0f, -1.0f, 1.0f);
-            }
+            glMatrixMode(GL_PROJECTION);
+            glLoadIdentity();
+            glOrtho(0.0f + 640, 640 + 640, 480, 0.0f, -1.0f, 1.0f);
 
-            g_board.tick();
             render(g_board);
             break;
         }
@@ -182,7 +125,6 @@ int main(int argc, char* argv[]) {
 
     SDL_AddTimer(60, timer, NULL);
     event_loop();
-
     return 0;
 }
 

@@ -149,18 +149,25 @@ private:
 
     // Update state (by 1 tick) of tickable objects
     struct TickVisitor {
+        TickVisitor(std::vector<TickKey> const& keys)
+            : keys(keys)
+        {}
+
         template<typename T>
         typename boost::enable_if<Tickable<T>, void>::type
         operator () (T& o, char* dummy = 0) const
         {
             typedef typename T::Tick TT;
-            TT::apply(o);
+            TT::apply(o, keys);
         }
 
         template<typename T>
         typename boost::disable_if<Tickable<T>, void>::type
         operator () (T&, int* dummy = 0) const {
         }
+
+    private:
+        std::vector<TickKey> keys;
     };
 
 public:
@@ -182,9 +189,9 @@ public:
         visit(RenderVisitor<GLImplT>());
     }
 
-    void tick()
+    void tick(std::vector<TickKey> const& keys)
     {
-        visit(TickVisitor());
+        visit(TickVisitor(keys));
     }
 
     Board();
