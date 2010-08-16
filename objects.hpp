@@ -160,7 +160,7 @@ public:
             assert(it != g.textures_.end());
 
             GL::glEnable(GL_ALPHA_TEST);
-            GL::glAlphaFunc(GL_GREATER, 0.0);
+            GL::glAlphaFunc(GL_GREATER, 0.5);
             GL::glBindTexture(GL_TEXTURE_2D, it->second);
             GL::glBegin(GL_QUADS);
                 GL::glTexCoord2f(0, 0); GL::glVertex3f(r.left(), r.top(), 0);
