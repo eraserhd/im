@@ -41,7 +41,7 @@ real_glwrap.hpp mock_glwrap.hpp: wrapgl opengl_apis.txt
 
 test: $(test_PROGRAMS)
 	for p in $(test_PROGRAMS); do \
-	  ./$$p || exit $$?; \
+	  ./$$p$(EXESUFFIX) || exit $$?; \
 	done
 
 $(test_PROGRAMS): $(testable_OBJECTS)
