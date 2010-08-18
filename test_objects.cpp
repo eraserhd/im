@@ -43,32 +43,32 @@ Guy make_guy() {
     return Guy(Point(10,10), load_guy_sprite<MockGL>());
 }
 
-BOOST_AUTO_TEST_CASE(guy_starts_in_standing_left_state) {
+BOOST_AUTO_TEST_CASE(guy_starts_in_standing_left_avatar_state) {
     Guy g = make_guy();
-    BOOST_CHECK(g.state() == Guy::State(Guy::LEFT,Guy::STANDING,0));
+    BOOST_CHECK(g.avatar_state() == Guy::AvatarState(Guy::LEFT,Guy::STANDING,0));
 }
 
-vector<Guy::State> all_guy_states() {
-    vector<Guy::State> r;
+vector<Guy::AvatarState> all_guy_avatar_states() {
+    vector<Guy::AvatarState> r;
     for (int d = (int) Guy::LEFT; d <= (int) Guy::RIGHT; ++d)
         for (int k = (int) Guy::STANDING; k <= (int) Guy::SEARCHING; ++k) {
-            const int frames = Guy::frame_count((Guy::StateKind) k);
+            const int frames = Guy::frame_count((Guy::AvatarStateKind) k);
             for (int i = 0; i < frames; ++i)
-                r.push_back(Guy::State((Guy::Facing) d, (Guy::StateKind) k, i));
+                r.push_back(Guy::AvatarState((Guy::Facing) d, (Guy::AvatarStateKind) k, i));
         }
     random_shuffle(ALL(r));
     return r;
 }
 
 struct TestableGuy : public Guy {
-    inline State& state() { return state_; }
+    inline AvatarState& avatar_state() { return avatar_state_; }
 };
-BOOST_AUTO_TEST_CASE(guy_renders_with_texture_corresponding_to_state) {
-    vector<Guy::State> ss = all_guy_states();
-    std::map<Guy::State,GLuint> ts = load_guy_sprite<MockGL>();
-    BOOST_FOREACH(Guy::State s, ss) {
+BOOST_AUTO_TEST_CASE(guy_renders_with_texture_corresponding_to_avatar_state) {
+    vector<Guy::AvatarState> ss = all_guy_avatar_states();
+    std::map<Guy::AvatarState,GLuint> ts = load_guy_sprite<MockGL>();
+    BOOST_FOREACH(Guy::AvatarState s, ss) {
         Guy g(Point(99,99), ts);
-        reinterpret_cast<TestableGuy&>(g).state() = s;
+        reinterpret_cast<TestableGuy&>(g).avatar_state() = s;
 
         MockGL::calls.clear();
         Guy::Render::apply<MockGL>(g);
@@ -93,89 +93,89 @@ BOOST_AUTO_TEST_CASE(guy_renders_with_alpha_clamping) {
     BOOST_CHECK(alpha_func);
 }
 
-BOOST_AUTO_TEST_CASE(guy_standing_left_tick_does_not_change_state) {
+BOOST_AUTO_TEST_CASE(guy_standing_left_tick_does_not_change_avatar_state) {
     std::vector<TickKey> keys;
-    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::STANDING, 0) == Guy::State(Guy::LEFT, Guy::STANDING, 0).next(keys));
+    BOOST_CHECK(Guy::AvatarState(Guy::LEFT, Guy::STANDING, 0) == Guy::AvatarState(Guy::LEFT, Guy::STANDING, 0).next(keys));
 }
 
-BOOST_AUTO_TEST_CASE(tick_cycles_state_index) {
+BOOST_AUTO_TEST_CASE(tick_cycles_avatar_state_index) {
     std::vector<TickKey> keys;
-    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 1) == Guy::State(Guy::LEFT, Guy::RUNNING, 0).next(keys));
-    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 0) == Guy::State(Guy::LEFT, Guy::RUNNING, Guy::frame_count(Guy::RUNNING)-1).next(keys));
+    BOOST_CHECK(Guy::AvatarState(Guy::LEFT, Guy::RUNNING, 1) == Guy::AvatarState(Guy::LEFT, Guy::RUNNING, 0).next(keys));
+    BOOST_CHECK(Guy::AvatarState(Guy::LEFT, Guy::RUNNING, 0) == Guy::AvatarState(Guy::LEFT, Guy::RUNNING, Guy::frame_count(Guy::RUNNING)-1).next(keys));
 }
 
 BOOST_AUTO_TEST_CASE(kb_left_down_changes_from_standing_to_running_left) {
-    Guy::State s(Guy::LEFT,Guy::STANDING,0);
+    Guy::AvatarState s(Guy::LEFT,Guy::STANDING,0);
 
     std::vector<TickKey> keys;
     keys.push_back(TickKey(true, SDLK_LEFT));
-    Guy::State n = s.next(keys);
+    Guy::AvatarState n = s.next(keys);
 
-    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 0) == n);
+    BOOST_CHECK(Guy::AvatarState(Guy::LEFT, Guy::RUNNING, 0) == n);
 }
 
 BOOST_AUTO_TEST_CASE(kb_left_up_changes_from_running_to_standing_left) {
-    Guy::State s(Guy::LEFT,Guy::RUNNING,0);
+    Guy::AvatarState s(Guy::LEFT,Guy::RUNNING,0);
 
     std::vector<TickKey> keys;
     keys.push_back(TickKey(false, SDLK_LEFT));
-    Guy::State n = s.next(keys);
+    Guy::AvatarState n = s.next(keys);
 
-    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::STANDING, 0) == n);
+    BOOST_CHECK(Guy::AvatarState(Guy::LEFT, Guy::STANDING, 0) == n);
 }
 
 BOOST_AUTO_TEST_CASE(kb_right_down_while_running_left_changes_direction) {
-    Guy::State s(Guy::LEFT,Guy::RUNNING,0);
+    Guy::AvatarState s(Guy::LEFT,Guy::RUNNING,0);
 
     std::vector<TickKey> keys;
     keys.push_back(TickKey(true, SDLK_RIGHT));
-    Guy::State n = s.next(keys);
+    Guy::AvatarState n = s.next(keys);
 
-    BOOST_CHECK(Guy::State(Guy::RIGHT, Guy::RUNNING, 0) == n);
+    BOOST_CHECK(Guy::AvatarState(Guy::RIGHT, Guy::RUNNING, 0) == n);
 }
 
 BOOST_AUTO_TEST_CASE(kb_left_down_while_running_right_changes_direction) {
-    Guy::State s(Guy::RIGHT,Guy::RUNNING,0);
+    Guy::AvatarState s(Guy::RIGHT,Guy::RUNNING,0);
 
     std::vector<TickKey> keys;
     keys.push_back(TickKey(true, SDLK_LEFT));
-    Guy::State n = s.next(keys);
+    Guy::AvatarState n = s.next(keys);
 
-    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 0) == n);
+    BOOST_CHECK(Guy::AvatarState(Guy::LEFT, Guy::RUNNING, 0) == n);
 }
 
 BOOST_AUTO_TEST_CASE(kb_left_up_while_running_right_does_nothing) {
-    Guy::State s(Guy::RIGHT,Guy::RUNNING,6);
+    Guy::AvatarState s(Guy::RIGHT,Guy::RUNNING,6);
 
     std::vector<TickKey> keys;
     keys.push_back(TickKey(false, SDLK_LEFT));
-    Guy::State n = s.next(keys);
+    Guy::AvatarState n = s.next(keys);
 
-    BOOST_CHECK(Guy::State(Guy::RIGHT, Guy::RUNNING, 7) == n);
+    BOOST_CHECK(Guy::AvatarState(Guy::RIGHT, Guy::RUNNING, 7) == n);
 }
 
 BOOST_AUTO_TEST_CASE(kb_right_up_while_running_left_does_nothing) {
-    Guy::State s(Guy::LEFT,Guy::RUNNING,6);
+    Guy::AvatarState s(Guy::LEFT,Guy::RUNNING,6);
 
     std::vector<TickKey> keys;
     keys.push_back(TickKey(false, SDLK_RIGHT));
-    Guy::State n = s.next(keys);
+    Guy::AvatarState n = s.next(keys);
 
-    BOOST_CHECK(Guy::State(Guy::LEFT, Guy::RUNNING, 7) == n);
+    BOOST_CHECK(Guy::AvatarState(Guy::LEFT, Guy::RUNNING, 7) == n);
 }
 
 BOOST_AUTO_TEST_CASE(kb_space_transitions_standing_and_running_to_flipping) {
     const Guy::Facing D[] = {Guy::LEFT,Guy::RIGHT};
     for (int d = 0; d < 2; ++d) {
-        const Guy::StateKind K[] = {Guy::STANDING,Guy::RUNNING};
+        const Guy::AvatarStateKind K[] = {Guy::STANDING,Guy::RUNNING};
         for (int k = 0; k < 2; ++k) {
-            Guy::State s(D[d], K[k], 5 % Guy::frame_count(K[k]));
+            Guy::AvatarState s(D[d], K[k], 5 % Guy::frame_count(K[k]));
 
             std::vector<TickKey> keys;
             keys.push_back(TickKey(true, SDLK_SPACE));
-            Guy::State n = s.next(keys);
+            Guy::AvatarState n = s.next(keys);
 
-            BOOST_CHECK(Guy::State(D[d], Guy::FLIPPING, 0) == n);
+            BOOST_CHECK(Guy::AvatarState(D[d], Guy::FLIPPING, 0) == n);
         }
     }
 }

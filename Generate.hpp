@@ -13,7 +13,7 @@
 namespace im {
 
 template<typename GL>
-std::map<Guy::State, GLuint> load_guy_sprite();
+std::map<Guy::AvatarState, GLuint> load_guy_sprite();
 
 template<typename GL>
 class Generate {
@@ -136,18 +136,18 @@ private:
 };
 
 template<typename GL>
-void load_series(std::map<Guy::State, GLuint>& r, Guy::Facing facing, Guy::StateKind kind, std::string const& base) {
+void load_series(std::map<Guy::AvatarState, GLuint>& r, Guy::Facing facing, Guy::AvatarStateKind kind, std::string const& base) {
     const int count = Guy::frame_count(kind);
     for (int i = 0; i < count; ++i) {
         std::ostringstream o;
         o << base << '-' << i;
-        r[Guy::State(facing,kind,i)] = GL::load_texture(o.str());
+        r[Guy::AvatarState(facing,kind,i)] = GL::load_texture(o.str());
     }
 }
 
 template<typename GL>
-std::map<Guy::State, GLuint> load_guy_sprite() {
-    std::map<Guy::State, GLuint> r;
+std::map<Guy::AvatarState, GLuint> load_guy_sprite() {
+    std::map<Guy::AvatarState, GLuint> r;
     load_series<GL>(r, Guy::LEFT, Guy::STANDING, "standing-left");
     load_series<GL>(r, Guy::RIGHT, Guy::STANDING, "standing-right");
     load_series<GL>(r, Guy::LEFT, Guy::SEARCHING, "searching");

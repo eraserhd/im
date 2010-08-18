@@ -116,36 +116,36 @@ public:
         RIGHT
     };
 
-    enum StateKind {
+    enum AvatarStateKind {
         STANDING,
         FLIPPING,
         RUNNING,
         SEARCHING
     };
 
-    struct State {
-        State(Facing facing, StateKind kind, int index);
+    struct AvatarState {
+        AvatarState(Facing facing, AvatarStateKind kind, int index);
 
-        bool operator == (const State& rhs) const;
-        bool operator < (const State& rhs) const;
+        bool operator == (const AvatarState& rhs) const;
+        bool operator < (const AvatarState& rhs) const;
 
-        State next(std::vector<TickKey> const& keys) const;
+        AvatarState next(std::vector<TickKey> const& keys) const;
 
     private:
         Facing facing;
-        StateKind kind;
+        AvatarStateKind kind;
         int index;
     };
 
     Guy();
-    Guy(Point const& position, std::map<State, GLuint> textures);
+    Guy(Point const& position, std::map<AvatarState, GLuint> textures);
 
 
     inline Point const& position() const {
         return position_;
     }
-    inline State const& state() const {
-        return state_;
+    inline AvatarState const& avatar_state() const {
+        return avatar_state_;
     }
 
     struct Tick {
@@ -156,7 +156,7 @@ public:
         static void apply(Guy const& g) {
             Rect r(g.position_, Size(48,84));
 
-            std::map<State, GLuint>::const_iterator it = g.textures_.find(g.state());
+            std::map<AvatarState, GLuint>::const_iterator it = g.textures_.find(g.avatar_state());
             assert(it != g.textures_.end());
 
             GL::glEnable(GL_ALPHA_TEST);
@@ -172,14 +172,14 @@ public:
         }
     };
 
-    static int frame_count(StateKind kind);
+    static int frame_count(AvatarStateKind kind);
 
 protected:
-    State state_;
+    AvatarState avatar_state_;
 
 private:
     Point position_;
-    std::map<State, GLuint> textures_;
+    std::map<AvatarState, GLuint> textures_;
 };
 
 }

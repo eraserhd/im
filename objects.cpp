@@ -57,31 +57,31 @@ Elevator::Elevator(Rect const& bounds, GLuint texture)
 // Guy
 
 Guy::Guy()
-    : state_(LEFT,STANDING,0)
+    : avatar_state_(LEFT,STANDING,0)
 {
 }
 
-Guy::Guy(Point const& position, std::map<Guy::State, GLuint> textures)
+Guy::Guy(Point const& position, std::map<Guy::AvatarState, GLuint> textures)
     : position_(position)
-    , state_(LEFT,STANDING,0)
+    , avatar_state_(LEFT,STANDING,0)
     , textures_(textures)
 {
 }
 
-// Guy::State
+// Guy::AvatarState
 
-Guy::State::State(Facing facing, StateKind kind, int index)
+Guy::AvatarState::AvatarState(Facing facing, AvatarStateKind kind, int index)
     : facing(facing)
     , kind(kind)
     , index(index)
 {
 }
 
-bool Guy::State::operator == (const Guy::State& rhs) const {
+bool Guy::AvatarState::operator == (const Guy::AvatarState& rhs) const {
     return facing == rhs.facing && kind == rhs.kind && index == rhs.index;
 }
 
-bool Guy::State::operator < (const Guy::State& rhs) const {
+bool Guy::AvatarState::operator < (const Guy::AvatarState& rhs) const {
     if (facing < rhs.facing) return true;
     if (facing > rhs.facing) return false;
     if (kind < rhs.kind) return true;
@@ -89,8 +89,8 @@ bool Guy::State::operator < (const Guy::State& rhs) const {
     return index < rhs.index;
 }
 
-Guy::State Guy::State::next(std::vector<TickKey>  const& keys) const {
-    Guy::State ns(*this);
+Guy::AvatarState Guy::AvatarState::next(std::vector<TickKey>  const& keys) const {
+    Guy::AvatarState ns(*this);
 
     bool changed = false;
     BOOST_FOREACH(TickKey const& k, keys) {
@@ -125,10 +125,10 @@ Guy::State Guy::State::next(std::vector<TickKey>  const& keys) const {
 // Guy::Tick
 
 void Guy::Tick::apply(Guy& guy, std::vector<TickKey> const& keys) {
-    guy.state_ = guy.state_.next(keys);
+    guy.avatar_state_ = guy.avatar_state_.next(keys);
 }
 
-int Guy::frame_count(StateKind k) {
+int Guy::frame_count(AvatarStateKind k) {
     switch (k) {
     case FLIPPING:
         return 12;
