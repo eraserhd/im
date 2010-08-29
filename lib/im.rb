@@ -24,7 +24,7 @@ class GameWindow < Gosu::Window
 
   def draw
     @background_image.draw(0,0,0)
-    @guy.image.draw(10,10,1)
+    @guy.image.draw(@guy.x,10,1)
   end
 end
 

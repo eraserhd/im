@@ -21,6 +21,8 @@ class Guy
   end
   FLIPPING = Flipping.new
 
+  MOVEMENT_DELTA = 10
+
   class ImageSet
     class NoImage < Exception
     end
@@ -52,10 +54,11 @@ class Guy
     @facing = LEFT
     @activity = STANDING
     @frame = 0
+    @x = 50
     @image_set = image_set
   end
 
-  attr_reader :activity, :facing, :frame
+  attr_reader :activity, :facing, :frame, :x
 
   def tick(params)
     if @activity == FLIPPING && @frame == (FLIPPING.frame_count-1)
@@ -86,6 +89,11 @@ class Guy
       if params[:space_pressed]
         @activity = FLIPPING
         @frame = 0
+        if params[:left_pressed]
+          @facing = LEFT
+        elsif params[:right_pressed]
+          @facing = RIGHT
+        end
         return
       elsif params[:left_pressed] && (@activity != RUNNING || @facing != LEFT)
         @facing = LEFT
@@ -105,6 +113,14 @@ class Guy
     end
 
     @frame = (@frame + 1) % @activity.frame_count
+    if (@activity == RUNNING) || (@activity == FLIPPING)
+      if @facing == LEFT
+        @x -= MOVEMENT_DELTA
+      else
+        @x += MOVEMENT_DELTA
+      end
+    end
+
   end
 
   def image

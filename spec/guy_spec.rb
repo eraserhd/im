@@ -53,6 +53,32 @@ describe Guy do
       @g.activity.should == Guy::FLIPPING
       @g.frame.should == 0
     end
+
+    it "should transition to flipping right from standing left when both keys pressed" do
+      @g.tick :left_pressed => false,
+              :right_pressed => true,
+              :space_pressed => true
+      @g.facing.should == Guy::RIGHT
+      @g.activity.should == Guy::FLIPPING
+      @g.frame.should == 0
+    end
+
+    it "should transtion to flipping left from standing right when both keys pressed" do
+      @g.tick :right_pressed => true
+      @g.tick :right_pressed => false
+      @g.tick :left_pressed => true, :space_pressed => true
+      @g.facing.should == Guy::LEFT
+      @g.activity.should == Guy::FLIPPING
+      @g.frame.should == 0
+    end
+
+    it "should not change position" do
+      before_x = @g.x
+      @g.tick :left_pressed => false,
+              :right_pressed => false,
+              :space_pressed => true
+      @g.x.should == before_x
+    end
   end
 
   describe "when running" do
@@ -90,6 +116,19 @@ describe Guy do
       @g.frame.should == 13
       tick
       @g.frame.should == 0
+    end
+
+    it "should move left when running left" do
+      before_x = @g.x
+      tick
+      @g.x.should == before_x - Guy::MOVEMENT_DELTA
+    end
+
+    it "should move right when running right" do
+      @g.tick :right_pressed => true
+      before_x = @g.x
+      @g.tick :right_pressed => true
+      @g.x.should == before_x + Guy::MOVEMENT_DELTA
     end
 
     describe "and the direction keys are released" do
@@ -151,6 +190,27 @@ describe Guy do
               :space_pressed => false
       @g.activity.should == Guy::FLIPPING
       @g.frame.should == 1
+    end
+
+    it "should move left when flipping left" do
+      before_x = @g.x
+      @g.tick :left_pressed => true,
+              :right_pressed => false,
+              :space_pressed => false
+      @g.x.should == before_x - Guy::MOVEMENT_DELTA
+    end
+
+    it "should move right when flipping right" do
+      @g = Guy.new(nil)
+      @g.tick :left_pressed => false,
+              :right_pressed => true,
+              :space_pressed => true
+      @g.facing.should == Guy::RIGHT
+      before_x = @g.x
+      @g.tick :left_pressed => false,
+              :right_pressed => false,
+              :space_pressed => false
+      @g.x.should == before_x + Guy::MOVEMENT_DELTA
     end
 
     describe "when landing" do
