@@ -112,8 +112,13 @@ describe Guy do
       end
 
       it "should reset the frame to zero when transitioning to standing" do
+        @g.tick :right_pressed => true,
+                :left_pressed => false
+        @g.tick :right_pressed => true,
+                :left_pressed => false
         @g.tick :right_pressed => false,
                 :left_pressed => false
+        @g.frame.should == 0
       end
 
     end
@@ -132,7 +137,7 @@ describe Guy do
       @g.frame.should == 0
     end
 
-    it "should continue flipping when all keys released" do
+    it "should continue flip when all keys released" do
       @g.tick :left_pressed => false,
               :right_pressed => false,
               :space_pressed => false
@@ -140,16 +145,53 @@ describe Guy do
       @g.frame.should == 1
     end
 
-    it "should flip again if space pressed when landing" do
-      false.should == true
+    it "should continue flip when space released but arrows still down" do
+      @g.tick :left_pressed => true,
+              :right_pressed => false,
+              :space_pressed => false
+      @g.activity.should == Guy::FLIPPING
+      @g.frame.should == 1
     end
 
-    it "should transition to standing at end of flip when no keys pressed" do
-      false.should == true
-    end
+    describe "when landing" do
 
-    it "should transition to running at end of flip if direction key pressed" do
-      false.should == true
+      before do
+        while @g.frame < (Guy::FLIPPING.frame_count-1)
+          @g.tick :left_pressed => true,
+                  :right_pressed => false,
+                  :space_pressed => false
+        end
+      end
+
+      it "should flip again if space pressed" do
+        @g.tick :left_pressed => false,
+                :right_pressed => false,
+                :space_pressed => true
+      end
+
+      it "should transition to standing if no keys pressed" do
+        @g.tick :left_pressed => false,
+                :right_pressed => false,
+                :space_pressed => false 
+        @g.activity.should == Guy::STANDING
+        @g.facing.should == Guy::LEFT
+      end
+
+      it "should transition to running at end of flip if direction key pressed" do
+        @g.tick :left_pressed => true,
+                :right_pressed => false,
+                :space_pressed => false 
+        @g.activity.should == Guy::RUNNING
+        @g.facing.should == Guy::LEFT
+      end
+
+      it "should transition to running opposite direction at end of flip if direction key pressed" do
+        @g.tick :left_pressed => false,
+                :right_pressed => true,
+                :space_pressed => false 
+        @g.activity.should == Guy::RUNNING
+        @g.facing.should == Guy::RIGHT
+      end
     end
 
   end

@@ -15,7 +15,7 @@ class GameWindow < Gosu::Window
   def update
     @guy.tick :left_pressed => button_down?(Gosu::KbLeft),
               :right_pressed => button_down?(Gosu::KbRight),
-              :fire_pressed => button_down?(Gosu::KbSpace)
+              :space_pressed => button_down?(Gosu::KbSpace)
   end
 
   def button_down(id)

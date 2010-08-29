@@ -58,24 +58,50 @@ class Guy
   attr_reader :activity, :facing, :frame
 
   def tick(params)
-    if params[:space_pressed] && (@activity != FLIPPING)
-      @activity = FLIPPING
-      @frame = 0
-      return
-    elsif params[:left_pressed] && (@activity != RUNNING || @facing != LEFT)
-      @facing = LEFT
-      @activity = RUNNING
-      @frame = 0
-      return
-    elsif params[:right_pressed] && (@activity != RUNNING || @facing != RIGHT)
-      @facing = RIGHT
-      @activity = RUNNING
-      @frame = 0
-      return
-    elsif @activity == RUNNING && !params[:right_pressed] && !params[:left_pressed]
+    if @activity == FLIPPING && @frame == (FLIPPING.frame_count-1)
+      if params[:left_pressed]
+        @facing = LEFT
+      elsif params[:right_pressed]
+        @facing = RIGHT
+      end
+
+      if params[:space_pressed]
+        @activity = FLIPPING
+        @frame = 0
+        return
+      end
+
+      if params[:left_pressed] || params[:right_pressed]
+        @activity = RUNNING
+        @frame = 0
+        return
+      end
+
       @activity = STANDING
       @frame = 0
       return
+    end
+
+    unless @activity == FLIPPING
+      if params[:space_pressed]
+        @activity = FLIPPING
+        @frame = 0
+        return
+      elsif params[:left_pressed] && (@activity != RUNNING || @facing != LEFT)
+        @facing = LEFT
+        @activity = RUNNING
+        @frame = 0
+        return
+      elsif params[:right_pressed] && (@activity != RUNNING || @facing != RIGHT)
+        @facing = RIGHT
+        @activity = RUNNING
+        @frame = 0
+        return
+      elsif @activity == RUNNING && !params[:right_pressed] && !params[:left_pressed]
+        @activity = STANDING
+        @frame = 0
+        return
+      end
     end
 
     @frame = (@frame + 1) % @activity.frame_count
