@@ -4,18 +4,10 @@ class Field
   class Box
     attr_reader :x1, :y1, :x2, :y2
 
-    def solid?
-      true
-    end
-
     def intersects?(b)
       return false if x2 < b.x1 || b.x2 < x1
       return false if y2 < b.y1 || b.y2 < y1
       true
-    end
-
-    def hollow?
-      !solid?
     end
 
   protected
@@ -23,22 +15,6 @@ class Field
       (class << self; self; end).instance_eval do
         define_method("layer") do
           n
-        end
-      end
-    end
-
-    def self.solid
-      (class << self; self; end).instance_eval do
-        define_method("solid?") do
-          true
-        end
-      end
-    end
-
-    def self.hollow
-      (class << self; self; end).instance_eval do
-        define_method("solid?") do
-          false
         end
       end
     end

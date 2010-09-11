@@ -5,8 +5,6 @@ require 'field'
 
 class TestBox < Field::Box
 
-  hollow
-
   def initialize(x1, y1, x2, y2, l)
     set_position(x1,y1,x2,y2)
     @layer = l
