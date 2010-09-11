@@ -7,3 +7,4 @@ test_objects
 mock_glwrap.hpp
 real_glwrap.hpp
 wrapgl
+.*.swp
