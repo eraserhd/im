@@ -5,19 +5,21 @@ require 'field'
 
 class TestBox < Field::Box
 
-  layer 1
   hollow
 
-  def initialize(x1, y1, x2, y2)
+  def initialize(x1, y1, x2, y2, l)
     set_position(x1,y1,x2,y2)
+    @layer = l
   end
+
+  attr_reader :layer
 
 end
 
 describe Field::Box do
 
   it "should preserve coordinates" do
-    @b = TestBox.new(30, 0, 40, 10)
+    @b = TestBox.new(30, 0, 40, 10, 1)
     @b.x1.should == 30
     @b.x2.should == 40
     @b.y1.should == 0
@@ -25,7 +27,7 @@ describe Field::Box do
   end
 
   it "should correct ordering of x coordinates if necessary" do
-    @b = TestBox.new(40, 10, 30, 0)
+    @b = TestBox.new(40, 10, 30, 0, 1)
     @b.x1.should == 30
     @b.x2.should == 40
     @b.y1.should == 0
@@ -40,88 +42,49 @@ describe Field, "hit testing" do
     @f = Field.new
   end
 
-  def query
-    result = @f.boxes_intersecting(10,10,20,20)
-    result.each { |b| b.class.should == TestBox }
-    result
-  end
-
-  describe "when empty" do
-    it "should find no boxes intersecting" do
-      query.should == []
-    end
-  end
-
-  it "should find a box which contains query" do
-    b = TestBox.new(0, 0, 40, 40)
-    @f.add(b)
-    query.should == [b]
-  end
-
-  it "should find a box which partially intersects" do
-    b = TestBox.new(5, 5, 15, 15)
-    @f.add(b)
-    query.should == [b]
-  end
-
-  it "should not find a box which does not intersect" do
-    b = TestBox.new(5, 5, 9, 15)
-    @f.add(b)
-    query.should == []
-  end
-
-  it "should pass brute force, random case test" do
-    found_times = 0
-    not_found_times = 0
+  it "should hit an odd layer box unless that box is completed eclipsed by even layer boxes" do
+    
+    # On a small grid, we can just color the boxes and test whether we actually intersect.
     150.times do
-      @f = Field.new
-      x1 = rand(20)
-      x2 = rand(20)
-      y1 = rand(20)
-      y2 = rand(20)
-      @b = TestBox.new(x1, y1, x2, y2)
-      @f.add(@b)
+      f = Field.new
+      b = Array.new(5) { Array.new(5,-1) }
 
-      found = @f.boxes_intersecting(5,7,10,12).size > 0
+      x1, x2 = rand(5), rand(5)
+      x2, x2 = x2, x1 if x1 > x2
+      y1, y2 = rand(5), rand(5)
+      y2, y2 = y2, y1 if y1 > y2
 
-      bf_found = false
-      0.upto(19) do |x|
-        0.upto(19) do |y|
-          bf_found = true if x >= @b.x1 && x <= @b.x2 && y >= @b.y1 && y <= @b.y2 &&
-                             x >= 5 && x <= 10 && y >= 7 && y <= 12
+      x1.should <= x2
+      y1.should <= y2
+
+      x1.upto(x2) do |x|
+        y1.upto(y2) do |y|
+          b[y][x] = 1
         end
       end
 
-      found.should == bf_found
-      if found
-        found_times += 1
-      else
-        not_found_times += 1
-      end
-    end
+      ob = TestBox.new(x1, y1, x2, y2, 1)
+      f.add(ob)
 
-    found_times.should >= 5
-    not_found_times.should >= 5
-  end
+      x1, x2 = rand(5), rand(5)
+      x2, x2 = x2, x1 if x1 > x2
+      y1, y2 = rand(5), rand(5)
+      y2, y2 = y2, y1 if y1 > y2
 
-  it "should return all boxes in order by layer" do
-    10.times do
-      @f = Field.new
-      10.times do 
-        tb = TestBox.new(0,0,40,40)
-        l = rand(10)
-        tb.instance_eval do
-          (class << self; self; end).instance_eval do
-            define_method("layer") { l }
-          end
+      x1.should <= x2
+      y1.should <= y2
+
+      x1.upto(x2) do |x|
+        y1.upto(y2) do |y|
+          b[y][x] = 2
         end
-        @f.add(tb)
       end
-      l = -1
-      @f.boxes_intersecting(10,10,20,20).each do |b|
-        b.layer.should >= l
-        l = b.layer
-      end
+
+      eb = TestBox.new(x1, y1, x2, y2, 2)
+      f.add(eb)
+
+      bf_hit_value = (b[3][3] == 1)
+      f.hit?(3,3).should == bf_hit_value
     end
   end
 

@@ -58,11 +58,16 @@ class Field
 
   def add(box)
     @boxes <<= box
+    @boxes.sort! {|a,b| b.layer <=> a.layer}
   end
 
-  def boxes_intersecting(x1, y1, x2, y2)
-    test_box = BBox.new(x1, y1, x2, y2)
-    @boxes.select{|b| b.intersects?(test_box)}.sort{|a,b| a.layer <=> b.layer}
+  def hit?(x, y)
+    @boxes.each do |b|
+      if x >= b.x1 && x <= b.x2 && y >= b.y1 && y <= b.y2
+        return (b.layer % 2) == 1
+      end
+    end
+    false
   end
 
 private
@@ -71,6 +76,5 @@ private
       set_position(x1,y1,x2,y2)
     end
   end
-
 
 end
