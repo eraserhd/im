@@ -52,5 +52,21 @@ describe Viewport do
       @v.y1.should == @v.field_height-@v.height
     end
 
+    it "should slowly center on guy" do
+      guy = MockGuy.new((@v.x1 + @v.x2) / 2 + 100, (@v.y1 + @v.y2) / 2 + 76)
+      @v.x1.should_not == guy.x - @v.width/2
+      @v.y1.should_not == guy.y - @v.height/2
+
+      @v.adjust_to_guy(guy)
+
+      @v.x1.should_not == guy.x - @v.width/2
+      @v.y1.should_not == guy.y - @v.height/2
+
+      50.times { @v.adjust_to_guy(guy) }
+      
+      @v.x1.should == guy.x - @v.width/2
+      @v.y1.should == guy.y - @v.height/2
+    end
+
   end
 end
