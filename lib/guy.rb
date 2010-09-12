@@ -54,11 +54,13 @@ class Guy
     @facing = LEFT
     @activity = STANDING
     @frame = 0
-    @x = 50
+    @x = 640 + 320
+    @y = 240
     @image_set = image_set
   end
 
-  attr_reader :activity, :facing, :frame, :x
+  attr_reader :activity, :facing, :frame
+  attr_accessor :x, :y
 
   def tick(params)
     if @activity == FLIPPING && @frame == (FLIPPING.frame_count-1)
@@ -125,5 +127,9 @@ class Guy
 
   def image
     @image_set.get(@facing, @activity, @frame)
+  end
+
+  def draw(vp)
+    image.draw(x - vp.x1, y - vp.y1, 5)
   end
 end

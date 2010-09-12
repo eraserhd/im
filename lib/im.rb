@@ -1,21 +1,20 @@
 
 require 'rubygems'
 require 'gosu'
-require 'guy'
+require 'game'
 
 class GameWindow < Gosu::Window
   def initialize
     super(640, 480, false, 60)
     self.caption = "Unlikely Task"
 
-    @background_image = Gosu::Image.new(self, "data/elevator-background-0.png", true)
-    @guy = Guy.new(Guy::ImageSet.new(self))
+    @game = Game.new(ImageLoader.new(self), Guy::ImageSet.new(self))
   end
 
   def update
-    @guy.tick :left_pressed => button_down?(Gosu::KbLeft),
-              :right_pressed => button_down?(Gosu::KbRight),
-              :space_pressed => button_down?(Gosu::KbSpace)
+    @game.tick :left_pressed => button_down?(Gosu::KbLeft),
+               :right_pressed => button_down?(Gosu::KbRight),
+               :space_pressed => button_down?(Gosu::KbSpace)
   end
 
   def button_down(id)
@@ -23,8 +22,7 @@ class GameWindow < Gosu::Window
   end
 
   def draw
-    @background_image.draw(0,0,0)
-    @guy.image.draw(@guy.x,10,1)
+    @game.draw
   end
 end
 

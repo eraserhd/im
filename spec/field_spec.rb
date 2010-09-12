@@ -88,3 +88,43 @@ describe Field, "hit testing" do
 
 end
 
+describe Field, "load" do
+  before do
+    @f = Field.load(ImageLoader.new(nil))
+  end
+  def boxes
+    @f.instance_variable_get("@boxes")
+  end
+  def backgrounds
+    boxes.select{|b| b.class == Field::Background}
+  end
+
+  it "should contain all the backgrounds" do
+    backgrounds.size.should == 5
+
+    found = Array.new(5,false)
+    backgrounds.each do |bg|
+      bg.layer.should == 1
+      found[bg.index] = true
+    end
+
+    found.select{|f| !f}.size.should == 0
+  end
+
+  it "should position the backgrounds in adjacent vertical stripes" do
+    right_hand_side = 0
+    updated = true 
+    while updated
+      updated = false 
+      backgrounds.each do |bg|
+        if bg.x1 == right_hand_side
+          right_hand_side = bg.x2 + 1
+          updated = true
+        end
+      end
+    end
+
+    right_hand_side.should == 11*640
+  end
+
+end
