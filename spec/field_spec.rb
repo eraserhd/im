@@ -100,15 +100,7 @@ describe Field, "load" do
   end
 
   it "should contain all the backgrounds" do
-    backgrounds.size.should == 5
-
-    found = Array.new(5,false)
-    backgrounds.each do |bg|
-      bg.layer.should == 1
-      found[bg.index] = true
-    end
-
-    found.select{|f| !f}.size.should == 0
+    backgrounds.size.should == 1
   end
 
   it "should position the backgrounds in adjacent vertical stripes" do

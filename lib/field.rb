@@ -50,12 +50,9 @@ class Field
   end
 
   class Background <Box
-    attr_reader :index
-
-    def initialize(index, x1, x2, image)
-      @index = index
-      set_position(x1, 0, x2, 480)
-      @image = image
+    def initialize(image_loader)
+      @image_loader = image_loader
+      set_position(0, 0, 11*640 - 1, 5*480 - 1)
     end
 
     def layer
@@ -63,22 +60,32 @@ class Field
     end
 
     def draw(vp)
-      @image.draw(x1 - vp.x1, y1 - vp.y1, layer)
+      unless @images
+        @images = Array.new(5)
+        0.upto(4) do |n|
+          @images[n] = @image_loader.get("elevator-background-#{n}")
+        end
+      end
+      0.upto(4).each do |j|
+        left = 320 + 2*640*j
+        right = left + 2*640
+        left -= 320 if j == 0
+        right += 320 if j == 4
+
+        0.upto((right - left)/512).each do |jj|
+          0.upto(y2/512).each do |i|
+            @images[j].draw(left + 512*jj - vp.x1, 512*i - vp.y1, layer)
+          end
+        end
+         
+      end
     end
   end
 
   def self.load(image_loader)
     f = Field.new
 
-    0.upto(4).each do |i|
-      left = 2*640*i + 320
-      right = left + 2*640 - 1
-      left -= 320 if i == 0
-      right += 320 if i == 4
-
-      bg = Background.new(i, left, right, image_loader.get("elevator-background-#{i}"))
-      f.add(bg)
-    end
+    f.add(Background.new(image_loader))
 
     f
   end
